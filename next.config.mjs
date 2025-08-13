@@ -13,8 +13,7 @@ const nextConfig = {
     unoptimized: true,
   },
   output: 'export',
-  basePath: isGhPages ? `/${repoName}` : undefined,
-  assetPrefix: isGhPages ? `/${repoName}/` : undefined,
+  basePath: '/portfolio',
 }
 
 export default nextConfig
