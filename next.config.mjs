@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
+const isGhPages = true
+const repoName = 'portfolio'
+
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -9,6 +12,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  output: 'export',
+  basePath: isGhPages ? `/${repoName}` : undefined,
+  assetPrefix: isGhPages ? `/${repoName}/` : undefined,
 }
 
 export default nextConfig

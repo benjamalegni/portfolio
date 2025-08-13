@@ -122,7 +122,19 @@ export default function ContactPage() {
               onChange={(e) => setMessage(e.target.value)}
             />
             <div className="flex items-center gap-3">
-              <Button disabled={sending} onClick={submit} className="bg-orange-500 hover:bg-orange-600 text-white">
+              <Button
+                disabled={sending}
+                onClick={async () => {
+                  // If statically exported (GitHub Pages), API route won't exist
+                  const isStatic = true
+                  if (isStatic) {
+                    setResult({ ok: false, error: "Contact form is disabled on static deploy (GitHub Pages)." })
+                    return
+                  }
+                  await submit()
+                }}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
                 {sending ? "Sending..." : "Send Message"}
               </Button>
               {result && (

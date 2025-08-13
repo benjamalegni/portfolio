@@ -4,29 +4,26 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Github, Star, Code, TrendingUp, Activity } from "lucide-react"
+import { buildGithubSummary, type GithubSummary } from "@/lib/github-summary"
 
 export default function DashboardPage() {
-  const [totals, setTotals] = useState<{ totalRepos: number; totalStars: number } | null>(null)
-  const [recentProjects, setRecentProjects] = useState<any[]>([])
-  const [weeklyActivity, setWeeklyActivity] = useState<{ day: string; commits: number }[]>([])
-  const [developmentActivity, setDevelopmentActivity] = useState<any[]>([])
+  const [summary, setSummary] = useState<GithubSummary | null>(null)
 
   useEffect(() => {
-    async function load() {
+    ;(async () => {
       try {
-        const res = await fetch("/api/github/summary?username=benjamalegni", { cache: "no-store" })
-        if (!res.ok) return
-        const data = await res.json()
-        setTotals(data.totals || null)
-        setRecentProjects(Array.isArray(data.recentProjects) ? data.recentProjects : [])
-        setWeeklyActivity(Array.isArray(data.weeklyActivity) ? data.weeklyActivity : [])
-        setDevelopmentActivity(Array.isArray(data.developmentActivity) ? data.developmentActivity : [])
+        const s = await buildGithubSummary("benjamalegni")
+        setSummary(s)
       } catch {
-        // show nothing on error
+        setSummary(null)
       }
-    }
-    load()
+    })()
   }, [])
+
+  const totals = summary?.totals
+  const weeklyActivity = summary?.weeklyActivity || []
+  const recentProjects = summary?.recentProjects || []
+  const developmentActivity = summary?.developmentActivity || []
 
   return (
     <div className="p-6 space-y-6">
@@ -70,7 +67,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Commits and Streak not shown with fake numbers; omit or show zeros */}
+        {/* Commits and Streak */}
         <Card className="bg-neutral-900 border-neutral-700">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -144,20 +141,6 @@ export default function DashboardPage() {
                   </div>
                 ))
               )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Top Languages */}
-        <Card className="lg:col-span-4 bg-neutral-900 border-neutral-700">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">TOP LANGUAGES</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {weeklyActivity && weeklyActivity.length >= 0 /* placeholder to keep structure */}
-              {/* languages will be from /skills page; keep card but render from summary below for convenience */}
-              {/* We can fetch again summary to get topLanguages */}
             </div>
           </CardContent>
         </Card>

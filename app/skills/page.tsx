@@ -4,23 +4,20 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { resume } from "@/data/resume"
+import { buildGithubSummary } from "@/lib/github-summary"
 
 export default function AgentNetworkPage() {
   const [topLanguages, setTopLanguages] = useState<{ name: string; percentage: number }[]>([])
-  const [githubStats, setGithubStats] = useState<any>(null)
+  const [githubTotals, setGithubTotals] = useState<{ totalRepos: number; totalStars: number } | null>(null)
 
   useEffect(() => {
-    const fetchSummary = async () => {
+    ;(async () => {
       try {
-        const res = await fetch("/api/github/summary?username=benjamalegni", { cache: "no-store" })
-        if (!res.ok) return
-        const data = await res.json()
-        setTopLanguages(Array.isArray(data.topLanguages) ? data.topLanguages : [])
-        setGithubStats(data)
+        const s = await buildGithubSummary("benjamalegni")
+        setTopLanguages(s.topLanguages)
+        setGithubTotals(s.totals)
       } catch {}
-    }
-
-    fetchSummary()
+    })()
   }, [])
 
   const frameworksAndTechnologies = [
@@ -61,6 +58,19 @@ export default function AgentNetworkPage() {
         </CardContent>
       </Card>
 
+      {/* Resume: Soft Skills */}
+      <Card className="bg-neutral-900 border-neutral-700">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">SOFT SKILLS</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {resume.softSkills.map((s) => (
+            <p key={s} className="text-sm text-neutral-300">
+              {s}
+            </p>
+          ))}
+        </CardContent>
+      </Card>
 
       {/* Resume: Technical Skills */}
       <Card className="bg-neutral-900 border-neutral-700">
@@ -111,22 +121,6 @@ export default function AgentNetworkPage() {
         </CardContent>
       </Card>
 
-
-      {/* Resume: Soft Skills */}
-      <Card className="bg-neutral-900 border-neutral-700">
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">SOFT SKILLS</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {resume.softSkills.map((s) => (
-            <p key={s} className="text-sm text-neutral-300">
-              {s}
-            </p>
-          ))}
-        </CardContent>
-      </Card>
-
-
       {/* Interests */}
       <Card className="bg-neutral-900 border-neutral-700">
         <CardHeader>
@@ -147,15 +141,15 @@ export default function AgentNetworkPage() {
           <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">GITHUB STATISTICS</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {githubStats?.totals ? (
+          {githubTotals ? (
             <>
               <div className="flex items-center justify-between">
                 <span className="text-white">Public Repositories:</span>
-                <span className="text-neutral-400">{githubStats.totals.totalRepos}</span>
+                <span className="text-neutral-400">{githubTotals.totalRepos}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white">Stars:</span>
-                <span className="text-neutral-400">{githubStats.totals.totalStars}</span>
+                <span className="text-neutral-400">{githubTotals.totalStars}</span>
               </div>
             </>
           ) : (
