@@ -8,10 +8,37 @@ import ProjectsPage from "./projects/page"
 import SkillsPage from "./skills/page"
 import ExperiencePage from "./experience/page"
 import ContactPage from "./contact/page"
+import { useEffect } from "react"
+import { fetchUserRepos, fetchUserEvents } from "@/lib/github"
 
 export default function CyberpunkPortfolio() {
   const [activeSection, setActiveSection] = useState("overview")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [activeProjects, setActiveProjects] = useState(0)
+  const [commitsThisYear, setCommitsThisYear] = useState(0)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const token = (process.env.NEXT_PUBLIC_GITHUB_TOKEN as string | undefined) || undefined
+        const username = "benjamalegni"
+        const [repos, events] = await Promise.all([
+          fetchUserRepos(username, token),
+          fetchUserEvents(username, token),
+        ])
+        const active = repos.filter((r) => !r.isFork && r.status !== "archived").length
+        setActiveProjects(active)
+        const currentYear = new Date().getFullYear()
+        const commits = events
+          .filter((e) => e.type === "PushEvent" && new Date(e.createdAt).getFullYear() === currentYear)
+          .reduce((sum, e) => sum + (e.commits || 0), 0)
+        setCommitsThisYear(commits)
+      } catch {
+        // ignore errors, keep defaults
+      }
+    }
+    load()
+  }, [])
 
   return (
     <div className="flex h-screen">
@@ -66,9 +93,8 @@ export default function CyberpunkPortfolio() {
                 <span className="text-xs text-white">SYSTEM ONLINE</span>
               </div>
               <div className="text-xs text-neutral-500">
-                <div>UPTIME: 365:24:7</div>
-                <div>PROJECTS: 42 ACTIVE</div>
-                <div>COMMITS: 1,337 THIS YEAR</div>
+                <div>PROJECTS: {activeProjects} ACTIVE</div>
+                <div>COMMITS: {commitsThisYear.toLocaleString()} THIS YEAR</div>
               </div>
             </div>
           )}
