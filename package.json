@@ -8,7 +8,7 @@
     "lint": "next lint",
     "start": "next start",
     "export": "next build",
-    "deploy": "npm run export && touch out/.nojekyll && gh-pages -d out -b gh-pages"
+    "deploy": "GITHUB_PAGES=true next build && mkdir -p out && echo > out/.nojekyll && gh-pages -f -d out -b gh-pages --dotfiles"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

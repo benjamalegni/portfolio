@@ -49,6 +49,11 @@ export async function fetchUserRepos(username: string, token?: string): Promise<
   }
   const repos = await res.json()
 
+  // On client (no token), skip per-repo topics calls to avoid rate limits
+  if (!token) {
+    return repos.map((repo: any) => mapRepoToProject(repo))
+  }
+
   const withTopics = await Promise.all(
     repos.map(async (repo: any) => {
       try {

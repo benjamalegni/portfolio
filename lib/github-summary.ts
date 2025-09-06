@@ -11,7 +11,7 @@ export type GithubSummary = {
 }
 
 export async function buildGithubSummary(username: string): Promise<GithubSummary> {
-  const token = undefined // Client-side unauthenticated by default
+  const token = (process.env.NEXT_PUBLIC_GITHUB_TOKEN as string | undefined) || undefined
 
   const reposAll: Project[] = await fetchUserRepos(username, token)
   const repos: Project[] = reposAll.filter((r) => !r.isFork && r.status !== "archived")
