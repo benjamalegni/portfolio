@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Globe } from "lucide-react"
-import { Mail, Phone, Linkedin } from "lucide-react"
+import { Mail, Phone, Linkedin, ExternalLink, Download } from "lucide-react"
 
 export default function ContactPage() {
   const [name, setName] = useState("")
@@ -14,6 +14,9 @@ export default function ContactPage() {
   const [message, setMessage] = useState("")
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState<null | { ok: boolean; error?: string }>(null)
+
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
+  const resumeUrl = `${basePath}/resume.pdf`
 
   async function submit() {
     setSending(true)
@@ -25,7 +28,7 @@ export default function ContactPage() {
         body: JSON.stringify({ name, email, subject, message }),
       })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok) {
+      if (!res.ok) { 
         setResult({ ok: false, error: data?.error || "Failed to send" })
       } else {
         setResult({ ok: true })
@@ -81,6 +84,27 @@ export default function ContactPage() {
             <div className="flex gap-4">
               <a href="https://ar.linkedin.com/in/lukamalegni/es" className="text-neutral-400 hover:text-white">
                 <Linkedin className="w-6 h-6" />
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-neutral-900 border-neutral-700">
+          <CardContent className="p-4 space-y-4">
+            <CardTitle className="text-lg font-bold text-white">Resume</CardTitle>
+            <div className="rounded border border-neutral-700 overflow-hidden bg-neutral-800">
+              <iframe src={resumeUrl} className="w-full h-64" title="Resume preview" />
+            </div>
+            <div className="flex gap-2">
+              <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
+                <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+                  <ExternalLink className="w-4 h-4 mr-2" /> View
+                </Button>
+              </a>
+              <a href={resumeUrl} download>
+                <Button variant="outline" className="border-neutral-700 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-300 bg-transparent">
+                  <Download className="w-4 h-4 mr-2" /> Download
+                </Button>
               </a>
             </div>
           </CardContent>
