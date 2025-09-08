@@ -32,19 +32,34 @@ export async function buildGithubSummary(username: string): Promise<GithubSummar
 
   const events = await fetchUserEvents(username, token)
   const ownRepoPrefix = `${username}/`
-  const now = new Date()
-  const past7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-  const weeklyCounts: Record<string, number> = { Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0 }
 
-  for (const ev of events) {
-    const d = new Date(ev.createdAt)
-    if (d >= past7 && ev.repoName.startsWith(ownRepoPrefix) && ev.type === "PushEvent") {
-      const key = days[d.getDay()]
-      weeklyCounts[key] += Math.max(1, ev.commits)
-    }
+  // Build last 7 calendar days including today
+  const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  function toLocalYmd(d: Date): string {
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, "0")
+    const day = String(d.getDate()).padStart(2, "0")
+    return `${y}-${m}-${day}`
   }
-  const weeklyActivity = days.map((day) => ({ day, commits: weeklyCounts[day] }))
+
+  const today = new Date()
+  const last7Days: { date: Date; ymd: string; label: string }[] = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)
+    last7Days.push({ date: d, ymd: toLocalYmd(d), label: weekdayLabels[d.getDay()] })
+  }
+
+  const weeklyActivity = last7Days.map(({ ymd, label }) => {
+    let commitsForDay = 0
+    for (const ev of events) {
+      if (ev.type !== "PushEvent") continue
+      if (!ev.repoName.startsWith(ownRepoPrefix)) continue
+      const evDate = new Date(ev.createdAt)
+      if (toLocalYmd(evDate) !== ymd) continue
+      commitsForDay += Math.max(1, ev.commits || 0)
+    }
+    return { day: label, commits: commitsForDay }
+  })
 
   let langAgg = await aggregateTopLanguages(username, repos.map((r) => ({ name: r.name })), token)
   if (!langAgg || langAgg.length === 0) {
