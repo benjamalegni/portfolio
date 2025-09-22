@@ -47,7 +47,7 @@ export default function CyberpunkPortfolio() {
       <div className="flex h-screen">
         {/* Sidebar */}
         <div
-          className={`${sidebarCollapsed ? "w-16" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 fixed md:relative z-50 md:z-auto h-full md:h-auto ${!sidebarCollapsed ? "md:block" : ""}`}
+          className={`${sidebarCollapsed ? "w-22" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 fixed md:relative z-50 md:z-auto h-full md:h-auto ${!sidebarCollapsed ? "md:block" : ""}`}
         >
           <div className="p-4">
             <div className="flex items-center justify-between mb-8">
