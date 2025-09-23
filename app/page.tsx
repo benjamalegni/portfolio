@@ -1,8 +1,6 @@
 "use client"
 
 import { SetStateAction, useState } from "react"
-import { ChevronRight, Monitor, Target, Shield, Users, Settings, Bell, RefreshCw } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import DashboardPage from "./dashboard/dashboard"
 import ProjectsPage from "./projects/projects"
 import SkillsPage from "./skills/skills"
@@ -11,6 +9,8 @@ import ContactPage from "./contact/contact"
 import { useEffect } from "react"
 import { fetchUserRepos, fetchUserEvents } from "@/lib/github"
 import { NavSide } from "./navside"
+import { TopToolBar } from "./toptoolbar"
+import "./globals.css"
 
 export type SectionId = "overview" | "projects" | "skills" | "experience" | "contact";
 
@@ -20,11 +20,13 @@ export default function CyberpunkPortfolio() {
   const [activeProjects, setActiveProjects] = useState(0)
   const [commitsThisYear, setCommitsThisYear] = useState(0)
 
+  const username = "benjamalegni"
+
+  // retrieve personal gh data
   useEffect(() => {
     async function load() {
       try {
         const token = (process.env.NEXT_PUBLIC_GITHUB_TOKEN as string | undefined) || undefined
-        const username = "benjamalegni"
         const [repos, events] = await Promise.all([
           fetchUserRepos(username, token),
           fetchUserEvents(username, token),
@@ -43,76 +45,45 @@ export default function CyberpunkPortfolio() {
     load()
   }, [])
 
+
+
+
   return (
-      <div className="flex h-screen">
-        {/* Sidebar */}
-        <div
-          className={`${sidebarCollapsed ? "w-22" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 fixed md:relative z-50 md:z-auto h-full md:h-auto ${!sidebarCollapsed ? "md:block" : ""}`}
-        >
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-8">
-              <div className={`${sidebarCollapsed ? "hidden" : "block"}`}>
-                <h1 className="text-orange-500 font-bold text-lg tracking-wider">LUKA PORTFOLIO</h1>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="text-neutral-400 hover:text-orange-500"
-              >
-                <ChevronRight
-                  className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${sidebarCollapsed ? "" : "rotate-180"}`}
-                />
-              </Button>
-            </div>
-
-            <NavSide
-              activeSection={activeSection}
-              setActiveSection={setActiveSection}
-              sidebarCollapsed={sidebarCollapsed}
-              />
-
-            {!sidebarCollapsed && (
-              <div className="mt-8 p-4 bg-neutral-800 border border-neutral-700 rounded">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-white">SYSTEM ONLINE</span>
-                </div>
-                <div className="text-xs text-neutral-500">
-                  <div>PROJECTS: {activeProjects} ACTIVE</div>
-                  <div>COMMITS: {commitsThisYear.toLocaleString()} THIS YEAR</div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile Overlay */}
+      <div className="retro-crt flex h-screen">
+        
+        {/* mobile overlay */}
         {!sidebarCollapsed && (
           <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarCollapsed(true)} />
         )}
 
-        {/* Main Content */}
-        <div className={`flex-1 flex flex-col ${!sidebarCollapsed ? "md:ml-0" : ""}`}>
-          {/* Top Toolbar */}
-          <div className="h-16 bg-neutral-800 border-b border-neutral-700 flex items-center justify-between px-6">
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-neutral-400">
-                LUKA PORTFOLIO / <span className="text-orange-500">{activeSection.toUpperCase()}</span>
+        {/* sidebar */}
+        <div
+          className={`${sidebarCollapsed ? "w-22" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 flex md:relative z-50 md:z-auto h-full md:h-auto `}
+        >
+          <div className="p-4">
+            <NavSide
+              activeSection={activeSection}
+              setActiveSection={setActiveSection}
+              sidebarCollapsed={sidebarCollapsed}
+              activeProjects={activeProjects}
+              commitsThisYear={commitsThisYear}
+              setSideBarCollapsed={setSidebarCollapsed}
+              />
+            
+            {!sidebarCollapsed && (
+              <div className="mt-8 p-4 bg-neutral-800 border border-neutral-700 rounded">
+                my face in 3D
               </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-xs text-neutral-500">LAST UPDATE: {new Date().toLocaleDateString()}</div>
-              <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-orange-500">
-                <Bell className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-orange-500">
-                <RefreshCw className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+            )}
 
-          {/* Dashboard Content */}
+          </div>
+        </div>
+
+
+        {/* main page router */}
+        <div className={`flex-1 flex flex-col ${!sidebarCollapsed ? "md:ml-0" : ""}`}>
+          <TopToolBar activeSection={activeSection}/>
+
           <div className="flex-1 overflow-auto">
             {activeSection === "overview" && <DashboardPage />}
             {activeSection === "projects" && <ProjectsPage />}

@@ -1,4 +1,4 @@
-import type { Project } from "@/types/project"
+import type { Project } from "@/types/project_type"
 import { projectImageOverrides } from "@/data/project-overrides"
 
 const GITHUB_API_BASE = "https://api.github.com"

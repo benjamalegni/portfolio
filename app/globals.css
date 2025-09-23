@@ -88,3 +88,78 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Retro CRT overlay */
+.retro-crt {
+  position: relative;
+  isolation: isolate;
+  filter: contrast(1.06) saturate(1.15) brightness(0.98);
+}
+
+.retro-crt::before,
+.retro-crt::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2147483646;
+}
+
+/* Stronger scanlines */
+.retro-crt::before {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 1) 0 0px,
+    rgba(0, 0, 0, 0) 1px 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 1;
+  animation: crt-flicker 2s infinite steps(60) alternate;
+}
+
+/* Pixel mask + curvature shading + vignette */
+.retro-crt::after {
+  background-image:
+    /* dot mask */
+    radial-gradient(rgba(255, 255, 255, 0.06) 10%, rgba(0, 0, 0, 0) 100%),
+    /* RGB triad */
+    repeating-linear-gradient(90deg,
+      rgba(255, 0, 0, 0.02) 0 1px,
+      rgba(0, 255, 0, 0.02) 1px 2px,
+      rgba(0, 0, 255, 0.02) 2px 3px,
+      rgba(0, 0, 0, 0) 3px 4px
+    ),
+    /* side curvature shadow */
+    linear-gradient(90deg, rgba(0,0,0,0.18) 0, rgba(0,0,0,0) 15%, rgba(0,0,0,0) 85%, rgba(0,0,0,0.18) 100%),
+    /* top/bottom soft highlight */
+    linear-gradient(0deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0) 10%, rgba(255,255,255,0) 90%, rgba(255,255,255,0.03) 100%),
+    /* vignette */
+    radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 100%, rgba(0, 0, 0, 0.1) 100%);
+  background-size:
+    2px 2px,
+    4px 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%;
+  background-position:
+    0 0,
+    0 0,
+    0 0,
+    0 0,
+    0 0;
+  background-repeat:
+    repeat,
+    repeat,
+    no-repeat,
+    no-repeat,
+    no-repeat;
+  opacity: 1;
+}
+
+@keyframes crt-flicker {
+  0% { opacity: 0.15; }
+  45% { opacity: 0.18; }
+  50% { opacity: 0.20; }
+  55% { opacity: 0.16; }
+  100% { opacity: 0.4; }
+}

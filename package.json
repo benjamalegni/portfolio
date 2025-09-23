@@ -20,7 +20,8 @@
     "react": "^19",
     "react-dom": "^19",
     "tailwind-merge": "^2.5.5",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "use-sound": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^22",

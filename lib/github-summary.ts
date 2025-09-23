@@ -1,5 +1,5 @@
 import { fetchUserRepos, fetchUserEvents, aggregateTopLanguages, formatTimeAgo } from "@/lib/github"
-import type { Project } from "@/types/project"
+import type { Project } from "@/types/project_type"
 
 export type GithubSummary = {
   username: string

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Search, Github, ExternalLink, Star, GitFork, Code, Calendar } from "lucide-react"
-import type { Project } from "@/types/project"
+import type { Project } from "@/types/project_type"
 import { personalProjects } from "@/data/personal-projects"
 import { fetchUserRepos } from "@/lib/github"
 
