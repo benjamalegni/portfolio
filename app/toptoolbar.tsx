@@ -8,7 +8,7 @@ type TopToolBarProps = {
   activeSection: SectionId
 }
 
-const DEFAULT_TRACK = `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/assets/music/theme.wav`
+const DEFAULT_TRACK = `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/assets/music/theme.webm`
 
 export function TopToolBar({ activeSection }: TopToolBarProps) {
   // load audios
@@ -46,6 +46,7 @@ export function TopToolBar({ activeSection }: TopToolBarProps) {
         onClick={handleVolumeClick}
         className="text-neutral-400 hover:text-orange-500 transition-colors"
         aria-label={muted ? "Turn music on" : "Turn music off"}
+        title="Turn music ON/OFF"
       >
         {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
       </button>
