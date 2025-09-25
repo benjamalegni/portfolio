@@ -34,6 +34,8 @@ export function NavSide({activeSection, setActiveSection, sidebarCollapsed, acti
       setSideBarCollapsed(!sidebarCollapsed)
     }
 
+    const videoSrc = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/assets/videos/welcome_3Dface.webm`
+
     return(
       <div className="flex h-full flex-col">
         <div className="flex flex-1 flex-col">
@@ -90,15 +92,16 @@ export function NavSide({activeSection, setActiveSection, sidebarCollapsed, acti
 
         {!sidebarCollapsed && (
           <div
-            className="mt-8 rounded border border-neutral-700 bg-neutral-200 p-1"
+            className="mt-6 overflow-hidden rounded-lg border border-neutral-700"
+            style={{ aspectRatio: "16 / 9" }}
           >
             <video
-              src="/assets/videos/welcome_3Dface.webm"
-              className="w-48"
+              src={videoSrc}
               autoPlay
               loop
               muted
               playsInline
+              className="h-full w-full object-cover"
             />
           </div>
         )}
