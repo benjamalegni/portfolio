@@ -49,7 +49,7 @@ export default function CyberpunkPortfolio() {
 
 
   return (
-      <div className="retro-crt flex h-screen">
+      <div className="retro-crt flex h-screen overflow-hidden">
         
         {/* mobile overlay */}
         {!sidebarCollapsed && (
@@ -58,9 +58,9 @@ export default function CyberpunkPortfolio() {
 
         {/* sidebar */}
         <div
-          className={`${sidebarCollapsed ? "w-22" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 flex md:relative z-50 md:z-auto h-full md:h-auto `}
+          className={`${sidebarCollapsed ? "w-22" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 flex md:relative z-50 md:z-auto h-full`}
         >
-          <div className="p-4">
+          <div className="flex h-full min-h-0 flex-col p-4">
             <NavSide
               activeSection={activeSection}
               setActiveSection={setActiveSection}
@@ -76,10 +76,10 @@ export default function CyberpunkPortfolio() {
 
 
         {/* main page router */}
-        <div className={`flex-1 flex flex-col ${!sidebarCollapsed ? "md:ml-0" : ""}`}>
+        <div className={`flex-1 min-h-0 flex flex-col ${!sidebarCollapsed ? "md:ml-0" : ""}`}>
           <TopToolBar activeSection={activeSection}/>
 
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto min-h-0">
             {activeSection === "overview" && <DashboardPage />}
             {activeSection === "projects" && <ProjectsPage />}
             {activeSection === "skills" && <SkillsPage />}
