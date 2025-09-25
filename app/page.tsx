@@ -70,11 +70,6 @@ export default function CyberpunkPortfolio() {
               setSideBarCollapsed={setSidebarCollapsed}
               />
             
-            {!sidebarCollapsed && (
-              <div className="mt-8 p-4 bg-neutral-800 border border-neutral-700 rounded">
-                my face in 3D
-              </div>
-            )}
 
           </div>
         </div>
