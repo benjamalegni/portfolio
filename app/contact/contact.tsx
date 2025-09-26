@@ -19,7 +19,8 @@ export default function ContactPage() {
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
   const normalizedBasePath = basePath.endsWith("/") ? basePath.slice(0, -1) : basePath
   const resumeUrl = `${normalizedBasePath}/resume.pdf`
-  const contactEndpoint = normalizedBasePath ? `${normalizedBasePath}/api/contact` : "/api/contact"
+  
+  const contactEndpoint = process.env.NEXT_PUBLIC_CONTACT_API ?? `${normalizedBasePath || ""}/api/contact`;
 
   async function submit() {
     setSending(true)

@@ -3,7 +3,6 @@ const isGhPages = process.env.GITHUB_PAGES === 'true'
 
 const nextConfig = {
   images: { unoptimized: true },
-  output: 'export',
   ...(isGhPages ? { basePath: '/portfolio' } : {}),
   env: {
     NEXT_PUBLIC_BASE_PATH: isGhPages ? '/portfolio' : '',
