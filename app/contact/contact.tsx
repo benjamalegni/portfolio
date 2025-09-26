@@ -15,17 +15,22 @@ export default function ContactPage() {
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState<null | { ok: boolean; error?: string }>(null)
 
+  // base path consts
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
-  const resumeUrl = `${basePath}/resume.pdf`
+  const normalizedBasePath = basePath.endsWith("/") ? basePath.slice(0, -1) : basePath
+  const resumeUrl = `${normalizedBasePath}/resume.pdf`
+  const contactEndpoint = normalizedBasePath ? `${normalizedBasePath}/api/contact` : "/api/contact"
 
   async function submit() {
     setSending(true)
     setResult(null)
+
     try {
-      const res = await fetch("/api/contact", {
+      const composedMessage = `${message}\n\nSender email: ${email}`
+      const res = await fetch(contactEndpoint, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name, email, subject, message }),
+        body: JSON.stringify({ name, email, subject, message: composedMessage }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) { 
@@ -37,6 +42,7 @@ export default function ContactPage() {
         setSubject("")
         setMessage("")
       }
+
     } catch (e: any) {
       setResult({ ok: false, error: e?.message || "Failed to send" })
     } finally {
@@ -67,7 +73,7 @@ export default function ContactPage() {
             </div>
             <div className="flex items-center gap-2 text-neutral-400">
               <Phone className="w-4 h-4" />
-              <a href="tel:+15551234567" className="hover:text-white">
+              <a href="tel:+542267469069" className="hover:text-white">
                 +54 2267 469069
               </a>
             </div>
@@ -147,14 +153,9 @@ export default function ContactPage() {
             />
             <div className="flex items-center gap-3">
               <Button
+                type="button"
                 disabled={sending}
                 onClick={async () => {
-                  // If statically exported (GitHub Pages), API route won't exist
-                  const isStatic = true
-                  if (isStatic) {
-                    setResult({ ok: false, error: "Contact form is disabled on static deploy (GitHub Pages)." })
-                    return
-                  }
                   await submit()
                 }}
                 className="bg-orange-500 hover:bg-orange-600 text-white"

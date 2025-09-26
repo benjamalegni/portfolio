@@ -1,7 +1,6 @@
 import { ChevronRight, Monitor, Settings, Shield, Target, Users } from "lucide-react"
 import { Dispatch, SetStateAction } from "react";
 import { SectionId } from "./page";
-import { Project } from "@/types/project_type";
 
 type Props = {
   activeSection: SectionId,
@@ -92,7 +91,7 @@ export function NavSide({activeSection, setActiveSection, sidebarCollapsed, acti
 
         {!sidebarCollapsed && (
           <div
-            className="mt-6 overflow-hidden border border-neutral-500"
+            className="mt-6 overflow-hidden border border-neutral-500 hidden md:block"
           >
             <video
               src={videoSrc}
