@@ -27,32 +27,14 @@ export default function ProjectsPage() {
   useEffect(() => {
     async function load() {
       try {
-        const isPages = typeof window !== "undefined" && location.hostname.endsWith("github.io")
-        if (!isPages) {
-          const apiRes = await fetch("/api/github/projects?username=benjamalegni", { cache: "no-store" }).catch(() => null)
-          if (apiRes && apiRes.ok) {
-            const data = await apiRes.json()
-            const repos: Project[] = Array.isArray(data.projects) ? data.projects : []
-            setProjects((prev) => {
-              const existingKeys = new Set(prev.map((p) => p.id))
-              const merged = [...prev]
-              for (const repo of repos) if (!existingKeys.has(repo.id)) merged.push(repo)
-              return merged
-            })
-            if (typeof data.username === "string" && data.username) {
-              setGithubProfileUrl(`https://github.com/${data.username}`)
-            }
-            return
-          }
-        }
-        const token = (process.env.NEXT_PUBLIC_GITHUB_TOKEN as string | undefined) || undefined
-        const repos = await fetchUserRepos("benjamalegni", token)
+        const repos = await fetchUserRepos("benjamalegni")
         setProjects((prev) => {
           const existingKeys = new Set(prev.map((p) => p.id))
           const merged = [...prev]
           for (const repo of repos) if (!existingKeys.has(repo.id)) merged.push(repo)
           return merged
         })
+        setGithubProfileUrl(`https://github.com/benjamalegni`)
       } catch {
         // keep personal projects
       }
@@ -286,32 +268,32 @@ export default function ProjectsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex gap-2 pt-4 border-t border-neutral-700">
-                {selectedProject.github && (
-                  <Button className="bg-neutral-800 hover:bg-neutral-700 text-white" onClick={() => window.open(selectedProject.github!, "_blank")}> 
-                    <Github className="w-4 h-4 mr-2" />
-                    View Source
-                  </Button>
-                )}
-                {selectedProject.demo && (
-                  <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => window.open(selectedProject.demo!, "_blank")}>
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Live Demo
-                  </Button>
-                )}
-                {selectedProject.github ? (
-                  <Button variant="outline" className="border-neutral-700 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-300 bg-transparent" onClick={() => window.open(`${selectedProject.github}/commits`, "_blank")}>
-                    <Calendar className="w-4 h-4 mr-2" />
-                    View Timeline
-                  </Button>
-                ) : (
-                  <Button variant="outline" className="border-neutral-700 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-300 bg-transparent">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    View Timeline
-                  </Button>
-                )}
+                <div className="flex gap-2 pt-4 border-t border-neutral-700">
+                  {selectedProject.github && (
+                    <Button className="bg-neutral-800 hover:bg-neutral-700 text-white" onClick={() => window.open(selectedProject.github!, "_blank")}> 
+                      <Github className="w-4 h-4 mr-2" />
+                      View Source
+                    </Button>
+                  )}
+                  {selectedProject.demo && (
+                    <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => window.open(selectedProject.demo!, "_blank")}>
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Live Demo
+                    </Button>
+                  )}
+                  {selectedProject.github ? (
+                    <Button variant="outline" className="border-neutral-700 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-300 bg-transparent" onClick={() => window.open(`${selectedProject.github}/commits`, "_blank")}>
+                      <Calendar className="w-4 h-4 mr-2" />
+                      View Timeline
+                    </Button>
+                  ) : (
+                    <Button variant="outline" className="border-neutral-700 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-300 bg-transparent">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      View Timeline
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

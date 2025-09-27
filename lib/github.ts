@@ -3,6 +3,37 @@ import { projectImageOverrides } from "@/data/project-overrides"
 
 const GITHUB_API_BASE = "https://api.github.com"
 
+function normalizeWorkerBase(): string | null {
+  const base = process.env.NEXT_PUBLIC_PORTFOLIO_WORKER_URL
+  if (!base) return null
+  const trimmed = base.trim()
+  if (!trimmed) return null
+  return trimmed.endsWith("/") ? trimmed.slice(0, -1) : trimmed
+}
+
+const WORKER_BASE_URL = normalizeWorkerBase()
+
+async function fetchWorkerRepositories(username: string): Promise<Project[] | null> {
+  if (!WORKER_BASE_URL) return null
+
+  try {
+    const url = new URL(`${WORKER_BASE_URL}/repos`)
+    url.searchParams.set("username", username)
+    const res = await fetch(url.toString(), { cache: "no-store" })
+    if (!res.ok) return null
+    const data = (await res.json().catch(() => null)) as { projects?: Project[] } | null
+    const projects = Array.isArray(data?.projects) ? (data!.projects as Project[]) : null
+    if (!projects) return null
+    return projects.map((project) => ({
+      ...project,
+      features: Array.isArray(project.features) ? project.features : [],
+      image: project.image ?? "/placeholder.svg?height=200&width=400",
+    }))
+  } catch {
+    return null
+  }
+}
+
 function mapRepoToProject(repo: any): Project {
   const topics: string[] = Array.isArray(repo.topics) ? repo.topics : []
   const tags = [
@@ -35,47 +66,10 @@ function mapRepoToProject(repo: any): Project {
   }
 }
 
-export async function fetchUserRepos(username: string, token?: string): Promise<Project[]> {
-  const headers: Record<string, string> = {
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-  }
-  if (token) headers.Authorization = `Bearer ${token}`
-
-  const url = `${GITHUB_API_BASE}/users/${encodeURIComponent(username)}/repos?per_page=100&sort=updated`
-  const res = await fetch(url, { headers, cache: "no-store" })
-  if (!res.ok) {
-    throw new Error(`GitHub API error: ${res.status}`)
-  }
-  const repos = await res.json()
-
-  // On client (no token), skip per-repo topics calls to avoid rate limits
-  if (!token) {
-    return repos.map((repo: any) => mapRepoToProject(repo))
-  }
-
-  const withTopics = await Promise.all(
-    repos.map(async (repo: any) => {
-      try {
-        const topicsRes = await fetch(`${GITHUB_API_BASE}/repos/${repo.owner.login}/${repo.name}/topics`, {
-          headers: {
-            ...headers,
-            Accept: "application/vnd.github.mercy-preview+json",
-          },
-          cache: "no-store",
-        })
-        if (topicsRes.ok) {
-          const data = await topicsRes.json()
-          repo.topics = data.names || []
-        }
-      } catch {
-        // ignore
-      }
-      return mapRepoToProject(repo)
-    })
-  )
-
-  return withTopics
+export async function fetchUserRepos(username: string, _token?: string): Promise<Project[]> {
+  const workerProjects = await fetchWorkerRepositories(username)
+  if (workerProjects) return workerProjects
+  throw new Error("Worker URL not configured or worker failed")
 }
 
 export type SimplifiedEvent = {
@@ -87,16 +81,19 @@ export type SimplifiedEvent = {
   createdAt: string
 }
 
-export async function fetchUserEvents(username: string, token?: string): Promise<SimplifiedEvent[]> {
+export async function fetchUserEvents(username: string): Promise<SimplifiedEvent[]> {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
   }
-  if (token) headers.Authorization = `Bearer ${token}`
+
+  // url for user
   const url = `${GITHUB_API_BASE}/users/${encodeURIComponent(username)}/events?per_page=100`
   const res = await fetch(url, { headers, cache: "no-store" })
-  if (!res.ok) return []
-  const events = await res.json()
+
+  if (!res.ok) return (console.error("Failed to fetch user events, this is github.ts"), []);
+
+  const events = (await res.json()) as any[]
   return events.map((e: any) => {
     const type: string = e.type
     const repoName: string = e.repo?.name || ""
@@ -118,16 +115,15 @@ export async function fetchUserEvents(username: string, token?: string): Promise
   })
 }
 
+//  function for top languages dashboard
 export async function aggregateTopLanguages(
   username: string,
   repos: { name: string; owner?: { login?: string } }[],
-  token?: string
 ): Promise<{ name: string; bytes: number }[]> {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
   }
-  if (token) headers.Authorization = `Bearer ${token}`
 
   const totals: Record<string, number> = {}
 
@@ -140,7 +136,7 @@ export async function aggregateTopLanguages(
           cache: "no-store",
         })
         if (!res.ok) return
-        const data = await res.json()
+        const data = (await res.json()) as Record<string, number>
         Object.entries<number>(data).forEach(([lang, bytes]) => {
           totals[lang] = (totals[lang] || 0) + bytes
         })

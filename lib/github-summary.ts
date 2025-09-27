@@ -11,9 +11,7 @@ export type GithubSummary = {
 }
 
 export async function buildGithubSummary(username: string): Promise<GithubSummary> {
-  const token = (process.env.NEXT_PUBLIC_GITHUB_TOKEN as string | undefined) || undefined
-
-  const reposAll: Project[] = await fetchUserRepos(username, token)
+  const reposAll: Project[] = await fetchUserRepos(username)
   const repos: Project[] = reposAll.filter((r) => !r.isFork && r.status !== "archived")
   const totalRepos = repos.length
   const totalStars = repos.reduce((sum, r) => sum + (r.stars || 0), 0)
@@ -30,7 +28,7 @@ export async function buildGithubSummary(username: string): Promise<GithubSummar
       lastUpdate: formatTimeAgo(`${p.lastUpdate}T00:00:00Z`),
     }))
 
-  const events = await fetchUserEvents(username, token)
+  const events = await fetchUserEvents(username)
   const ownRepoPrefix = `${username}/`
 
   // Build last 7 calendar days including today
@@ -61,7 +59,7 @@ export async function buildGithubSummary(username: string): Promise<GithubSummar
     return { day: label, commits: commitsForDay }
   })
 
-  let langAgg = await aggregateTopLanguages(username, repos.map((r) => ({ name: r.name })), token)
+  let langAgg = await aggregateTopLanguages(username, repos.map((r) => ({ name: r.name })))
   if (!langAgg || langAgg.length === 0) {
     const counts: Record<string, number> = {}
     for (const r of repos) if (r.language) counts[r.language] = (counts[r.language] || 0) + 1

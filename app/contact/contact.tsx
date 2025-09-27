@@ -20,7 +20,10 @@ export default function ContactPage() {
   const normalizedBasePath = basePath.endsWith("/") ? basePath.slice(0, -1) : basePath
   const resumeUrl = `${normalizedBasePath}/resume.pdf`
   
-  const contactEndpoint = process.env.NEXT_PUBLIC_CONTACT_API ?? `${normalizedBasePath || ""}/api/contact`;
+  const workerBase = process.env.NEXT_PUBLIC_PORTFOLIO_WORKER_URL || ""
+  const normalizedWorkerBase = workerBase ? (workerBase.endsWith("/") ? workerBase.slice(0, -1) : workerBase) : ""
+  const contactEndpoint = normalizedWorkerBase ? `${normalizedWorkerBase}/message` : `${normalizedBasePath || ""}/api/contact`
+  
 
   async function submit() {
     setSending(true)
@@ -33,7 +36,7 @@ export default function ContactPage() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ name, email, subject, message: composedMessage }),
       })
-      const data = await res.json().catch(() => ({}))
+      const data = (await res.json().catch(() => ({}))) as { error?: string }
       if (!res.ok) { 
         setResult({ ok: false, error: data?.error || "Failed to send" })
       } else {

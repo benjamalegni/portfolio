@@ -26,10 +26,9 @@ export default function CyberpunkPortfolio() {
   useEffect(() => {
     async function load() {
       try {
-        const token = (process.env.NEXT_PUBLIC_GITHUB_TOKEN as string | undefined) || undefined
         const [repos, events] = await Promise.all([
-          fetchUserRepos(username, token),
-          fetchUserEvents(username, token),
+          fetchUserRepos(username),
+          fetchUserEvents(username),
         ])
         const active = repos.filter((r) => !r.isFork && r.status !== "archived").length
         setActiveProjects(active)
@@ -44,7 +43,6 @@ export default function CyberpunkPortfolio() {
     }
     load()
   }, [])
-
 
 
 
