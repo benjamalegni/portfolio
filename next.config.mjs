@@ -7,6 +7,9 @@ const nextConfig = {
   ...(isGhPages ? { basePath: '/portfolio' } : {}),
   env: {
     NEXT_PUBLIC_BASE_PATH: isGhPages ? '/portfolio' : '',
+    NEXT_PUBLIC_CONTACT_API:
+      process.env.NEXT_PUBLIC_CONTACT_API ||
+      (isGhPages ? 'https://portfolio-mailer.portfolio-mailer.workers.dev' : ''),
   },
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
