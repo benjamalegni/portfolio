@@ -7,7 +7,7 @@ export const personalProjects: Project[] = [
     description: "Personal portfolio built with Next.js and Tailwind CSS",
     status: "active",
     category: "Web",
-    tags: ["#nextjs", "#react", "#tailwind"],
+    tags: ["#nextjs", "#react", "#tailwind", "#cloudflareWorker", "#expressJS"],
     stars: 0,
     forks: 0,
     language: "TypeScript",
