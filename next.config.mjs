@@ -2,6 +2,7 @@
 const isGhPages = process.env.GITHUB_PAGES === 'true'
 
 const nextConfig = {
+  output: 'export',
   images: { unoptimized: true },
   ...(isGhPages ? { basePath: '/portfolio' } : {}),
   env: {
