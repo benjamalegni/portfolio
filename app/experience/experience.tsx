@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Target, Clock, AlertTriangle, CheckCircle, XCircle, GraduationCap, Award } from "lucide-react"
 import { resume } from "@/data/resume"
 
-export default function OperationsPage() {
-  const [selectedOperation, setSelectedOperation] = useState(null)
+export default function ExperiencePage() {
 
   // Work experience from resume (optional)
   const professionalExperience: Array<{
@@ -37,62 +36,11 @@ export default function OperationsPage() {
     details: c.details,
   }))
 
-  // Achievements: not present in resume; keep empty
-  const achievementsAndRecognitions: Array<{
-    title: string
-    organization?: string
-    date?: string
-    description?: string
-  }> = []
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-white/20 text-white"
-      case "planning":
-        return "bg-orange-500/20 text-orange-500"
-      case "completed":
-        return "bg-white/20 text-white"
-      case "compromised":
-        return "bg-red-500/20 text-red-500"
-      default:
-        return "bg-neutral-500/20 text-neutral-300"
-    }
-  }
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "critical":
-        return "bg-red-500/20 text-red-500"
-      case "high":
-        return "bg-orange-500/20 text-orange-500"
-      case "medium":
-        return "bg-neutral-500/20 text-neutral-300"
-      case "low":
-        return "bg-white/20 text-white"
-      default:
-        return "bg-neutral-500/20 text-neutral-300"
-    }
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Target className="w-4 h-4" />
-      case "planning":
-        return <Clock className="w-4 h-4" />
-      case "completed":
-        return <CheckCircle className="w-4 h-4" />
-      case "compromised":
-        return <XCircle className="w-4 h-4" />
-      default:
-        return <AlertTriangle className="w-4 h-4" />
-    }
-  }
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
+
+      {/*  component header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-wider">PROFESSIONAL EXPERIENCE</h1>
@@ -156,11 +104,12 @@ export default function OperationsPage() {
               key={index}
               className="bg-neutral-900 border-neutral-700 hover:border-orange-500/50 transition-colors"
             >
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-3 mb-2">
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="text-sm font-bold text-white tracking-wider">{edu.degree}</CardTitle>
                     <p className="text-xs text-neutral-400 font-mono">{edu.university}</p>
+
                     {(edu.startDate || edu.endDate) && (
                       <p className="text-xs text-neutral-400 font-mono">
                         {edu.startDate || ""} {edu.endDate ? `- ${edu.endDate}` : ""}

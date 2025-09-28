@@ -1,4 +1,4 @@
-import { ChevronRight, Monitor, Settings, Shield, Target, Users } from "lucide-react"
+import { ChevronRight, Monitor, Shield, Target, Users, Contact } from "lucide-react"
 import { Dispatch, SetStateAction } from "react";
 import { SectionId } from "./page";
 
@@ -16,16 +16,16 @@ type Item = {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
 };
-
 const iconSize = "w-4 h-4 sm:w-5 sm:h-5"
 
 export function NavSide({activeSection, setActiveSection, sidebarCollapsed, activeProjects, commitsThisYear, setSideBarCollapsed}:Props){
     const items:Item[] = [
-                { id: "overview", icon: Monitor, label: "DASHBOARD" },
+
                 { id: "projects", icon: Target, label: "PROJECTS" },
                 { id: "skills", icon: Shield, label: "SKILLS & STATS" },
+                { id: "overview", icon: Monitor, label: "DASHBOARD" },
                 { id: "experience", icon: Users, label: "EXPERIENCE" },
-                { id: "contact", icon: Settings, label: "CONTACT" },
+                { id: "contact", icon: Contact, label: "CONTACT" },
               ]
 
 

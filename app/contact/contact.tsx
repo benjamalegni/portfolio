@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Globe } from "lucide-react"
+import { Github, Globe } from "lucide-react"
 import { Mail, Phone, Linkedin, ExternalLink, Download } from "lucide-react"
 
 export default function ContactPage() {
@@ -88,12 +88,15 @@ export default function ContactPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-neutral-900 border-neutral-700">
-          <CardContent className="p-4 space-y-4">
+        <Card className="bg-neutral-900 border-neutral-700 h-full">
+          <CardContent className="p-4 space-y-4 flex flex-col items-center justify-center h-full">
             <CardTitle className="text-lg font-bold text-white">Connect With Me</CardTitle>
             <div className="flex gap-4">
               <a href="https://ar.linkedin.com/in/lukamalegni/es" className="text-neutral-400 hover:text-white">
                 <Linkedin className="w-6 h-6" />
+              </a>
+              <a href="https://github.com/benjamalegni" className="text-neutral-400 hover:text-white">
+                <Github className="w-6 h-6" />
               </a>
             </div>
           </CardContent>

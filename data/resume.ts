@@ -4,8 +4,8 @@ export const resume = {
       degree: "Bachelor of Science in Systems Engineering",
       university: "Faculty of Exact Sciences, UNICEN",
       location: "Tandil, Buenos Aires, Argentina",
-      startDate: "",
-      endDate: "",
+      startDate: "2023-03",
+      endDate: "Present",
       description: "",
     },
   ],
@@ -36,6 +36,22 @@ export const resume = {
          "Achievement 2: Responsible for user access migration from on-prem servers to centralized compliant system following group policies, SOX regulations and cloud resource management.",
        ],
      },
+
+     {
+       title: "Cashier & Support Staff",
+       company: "La Esquina de Azu",
+       location: "Pinamar, Buenos Aires, Argentina",
+       startDate: "2020-01",
+       endDate: "2024-03Summer Job)",
+       description: "Summer Job involving customer service, cashier, and support staff.",
+       achievements: [
+         "Achievement 1: Handled cash and card payments while providing friendly service to customers",
+         "Achievement 2: Helped with daily operations beyond the cashier role, including restocking, cleaning, and organizing orders",
+         "Achievement 3: Assisted with inventory management and ensured the store was well-stocked and organizedApplied communication and active listening skills to understand customer needs and to resolve issues on the spot.",
+       ],
+     },
+
+
   ],
   softSkills: [
     "Collaborative team player: Collaborated effectively in a team environment to design and configure a scalable network infrastructure project for UNICEN using both IPv4 (with VLSM and static routing) and IPv6 (with RIPng).",

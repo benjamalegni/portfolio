@@ -20,14 +20,6 @@ export default function AgentNetworkPage() {
     })()
   }, [])
 
-  const frameworksAndTechnologies = [
-    { name: "React", percentage: 75 },
-    { name: "Next.js", percentage: 65 },
-    { name: "Node.js", percentage: 55 },
-    { name: "Tailwind CSS", percentage: 80 },
-    { name: "Prisma", percentage: 70 },
-  ]
-
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
