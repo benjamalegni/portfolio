@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Search, Github, ExternalLink, Star, GitFork, Code, Calendar } from "lucide-react"
 import type { Project } from "@/types/project_type"
 import { fetchUserRepos } from "@/lib/github"
+import { createPortal } from "react-dom"
+
 
 export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -210,8 +212,12 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      {selectedProject && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      {selectedProject && createPortal(
+        <div className="fixed inset-0 z-[9999]
+      bg-black/70
+      supports-[backdrop-filter:blur(0)]:backdrop-blur-md
+      supports-[backdrop-filter:blur(0)]:backdrop-saturate-150
+      flex items-center justify-center p-4">
           <Card className="bg-neutral-900 border-neutral-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
@@ -295,7 +301,7 @@ export default function ProjectsPage() {
             </CardContent>
           </Card>
         </div>
-      )}
+      , document.body)}
     </div>
   )
 }
