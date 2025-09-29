@@ -7,37 +7,34 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Search, Github, ExternalLink, Star, GitFork, Code, Calendar } from "lucide-react"
 import type { Project } from "@/types/project_type"
-import { personalProjects } from "@/data/personal-projects"
 import { fetchUserRepos } from "@/lib/github"
 
 export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedTag, setSelectedTag] = useState("")
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [projects, setProjects] = useState<Project[]>(personalProjects)
+  const [projects, setProjects] = useState<Project[]>([])
   const [githubProfileUrl, setGithubProfileUrl] = useState<string>("https://github.com/benjamalegni")
 
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
-  const resolveSrc = (src?: string | null) => {
-    if (!src) return `${basePath}/placeholder.svg`
-    if (src.startsWith("http")) return src
-    return `${basePath}${src}`
-  }
+
 
   useEffect(() => {
-    async function load() {
-      try {
-        const repos = await fetchUserRepos("benjamalegni")
+    async function load(){
+      fetchUserRepos("benjamalegni").then((repos) => {
         setProjects((prev) => {
           const existingKeys = new Set(prev.map((p) => p.id))
           const merged = [...prev]
-          for (const repo of repos) if (!existingKeys.has(repo.id)) merged.push(repo)
+          for (const repo of repos) {           
+            if (!existingKeys.has(repo.id)) {
+              repo.image = `${basePath}/${repo.name}-preview.png`
+              merged.push(repo)
+            }
+          }
           return merged
         })
         setGithubProfileUrl(`https://github.com/benjamalegni`)
-      } catch {
-        // keep personal projects
-      }
+      })
     }
     load()
   }, [])
@@ -135,7 +132,7 @@ export default function ProjectsPage() {
             onClick={() => setSelectedProject(project)}
           >
             <div className="aspect-video bg-neutral-800 relative overflow-hidden">
-              <img src={resolveSrc(project.image)} alt={project.name} className="w-full h-full object-cover" />
+              <img src={project.image} alt={project.name} className="w-full h-full object-cover" />
               <div className="absolute top-2 right-2">
                 <Badge className={getProjectStatusBadgeClass(project.status)}>{project.status.toUpperCase()}</Badge>
               </div>
@@ -225,7 +222,7 @@ export default function ProjectsPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="aspect-video bg-neutral-800 rounded overflow-hidden">
-                <img src={resolveSrc(selectedProject.image)} alt={selectedProject.name} className="w-full h-full object-cover" />
+                <img src={selectedProject.image} alt={selectedProject.name} className="w-full h-full object-cover" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

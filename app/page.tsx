@@ -15,7 +15,7 @@ import "./globals.css"
 export type SectionId = "overview" | "projects" | "skills" | "experience" | "contact";
 
 export default function CyberpunkPortfolio() {
-  const [activeSection, setActiveSection] = useState<SectionId>("overview")
+  const [activeSection, setActiveSection] = useState<SectionId>("projects")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeProjects, setActiveProjects] = useState(0)
   const [commitsThisYear, setCommitsThisYear] = useState(0)

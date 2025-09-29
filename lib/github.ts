@@ -1,5 +1,4 @@
 import type { Project } from "@/types/project_type"
-import { projectImageOverrides } from "@/data/project-overrides"
 
 const GITHUB_API_BASE = "https://api.github.com"
 
@@ -27,44 +26,12 @@ async function fetchWorkerRepositories(username: string): Promise<Project[] | nu
     return projects.map((project) => ({
       ...project,
       features: Array.isArray(project.features) ? project.features : [],
-      image: project.image ?? "/placeholder.svg?height=200&width=400",
     }))
   } catch {
     return null
   }
 }
 
-function mapRepoToProject(repo: any): Project {
-  const topics: string[] = Array.isArray(repo.topics) ? repo.topics : []
-  const tags = [
-    ...topics.map((t: string) => (t.startsWith("#") ? t : `#${t}`)),
-  ]
-  if (repo.language) {
-    const langTag = `#${String(repo.language).toLowerCase()}`
-    if (!tags.includes(langTag)) tags.push(langTag)
-  }
-
-  const fullName: string = repo.full_name || `${repo.owner?.login || ""}/${repo.name || ""}`
-  const overrideImage = projectImageOverrides[fullName] || projectImageOverrides[repo.name]
-
-  return {
-    id: String(repo.id),
-    name: repo.name ?? "",
-    description: repo.description ?? null,
-    status: repo.archived ? "archived" : "active",
-    category: repo.language ?? "General",
-    tags,
-    stars: Number(repo.stargazers_count ?? 0),
-    forks: Number(repo.forks_count ?? 0),
-    language: repo.language ?? null,
-    lastUpdate: (repo.pushed_at || repo.updated_at || new Date().toISOString()).slice(0, 10),
-    demo: repo.homepage ? String(repo.homepage) : null,
-    github: repo.html_url ?? null,
-    image: overrideImage || "/placeholder.svg?height=200&width=400",
-    features: [],
-    isFork: Boolean(repo.fork),
-  }
-}
 
 export async function fetchUserRepos(username: string, _token?: string): Promise<Project[]> {
   const workerProjects = await fetchWorkerRepositories(username)
