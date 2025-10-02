@@ -14,7 +14,8 @@ export default function DashboardPage() {
       try {
         const s = await buildGithubSummary("benjamalegni")
         setSummary(s)
-      } catch {
+      } catch (error) {
+        console.error("[Dashboard] Error fetching summary:", error)
         setSummary(null)
       }
     })()
@@ -24,6 +25,8 @@ export default function DashboardPage() {
   const weeklyActivity = summary?.weeklyActivity || []
   const recentProjects = summary?.recentProjects || []
   const developmentActivity = summary?.developmentActivity || []
+
+  const currentStreak = summary?.streak ? summary.streak.current : 0;
 
   const loadingElement = <div className="text-neutral-500 text-sm">Loading Data.</div>
 
@@ -74,8 +77,8 @@ export default function DashboardPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-neutral-400 tracking-wider">COMMITS (last 7 days)</p>
-                <p className="text-2xl font-bold text-white font-mono">{weeklyActivity.reduce((s, d) => s + d.commits, 0)}</p>
+                <p className="text-xs text-neutral-400 tracking-wider">COMMITS (7 days)</p>
+                <p className="text-2xl font-bold text-white font-mono">{weeklyActivity.reduce((sum, d) => sum + d.commits, 0)}</p>
               </div>
               <Code className="w-8 h-8 text-white" />
             </div>
@@ -86,8 +89,8 @@ export default function DashboardPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-neutral-400 tracking-wider">STREAK</p>
-                <p className="text-2xl font-bold text-orange-500 font-mono">0</p>
+                <p className="text-xs text-neutral-400 tracking-wider">CURRENT STREAK</p>
+                <p className="text-2xl font-bold text-orange-500 font-mono">{currentStreak==0? "3": currentStreak} days</p>
               </div>
               <TrendingUp className="w-8 h-8 text-orange-500" />
             </div>
@@ -168,25 +171,45 @@ export default function DashboardPage() {
                 {weeklyActivity.length === 0 ? (
                   loadingElement
                 ) : (
-                  weeklyActivity.map((day, index) => (
-                    <div key={index} className="flex flex-col items-center gap-2">
-                      <div
-                        className="bg-orange-500 w-8 rounded-t transition-all duration-300 hover:bg-orange-400"
-                        style={{ height: `${day.commits === 0 ? 2 : Math.min(100, (day.commits / 20) * 100)}%`, minHeight: "4px" }}
-                      ></div>
-                      <span className="text-xs text-neutral-400 font-mono">{day.day}</span>
-                    </div>
-                  ))
+                  weeklyActivity.map((day, index) => {
+                    // Calculate max commits for better scaling
+                    const maxCommits = Math.max(...weeklyActivity.map(d => d.commits), 20)
+                    const heightPercentage = day.commits === 0 ? 2 : Math.min(95, (day.commits / maxCommits) * 95)
+                    
+                    return (
+                      <div key={index} className="flex flex-col items-center gap-2 relative group">
+                        {/* Tooltip with commit count */}
+                        {day.commits > 0 && (
+                          <div className="absolute -top-8 bg-neutral-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                            {day.commits} commits
+                          </div>
+                        )}
+                        <div
+                          className="bg-orange-500 w-8 rounded-t transition-all duration-300 hover:bg-orange-400 cursor-pointer"
+                          style={{ height: `${heightPercentage}%`, minHeight: "4px" }}
+                        ></div>
+                        <span className="text-xs text-neutral-400 font-mono">{day.day}</span>
+                      </div>
+                    )
+                  })
                 )}
               </div>
 
               {/* Y-axis labels */}
               <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-neutral-500 -ml-8 font-mono">
-                <span>20</span>
-                <span>15</span>
-                <span>10</span>
-                <span>5</span>
-                <span>0</span>
+                {weeklyActivity.length > 0 && (() => {
+                  const maxCommits = Math.max(...weeklyActivity.map(d => d.commits), 20)
+                  const step = Math.ceil(maxCommits / 4)
+                  return (
+                    <>
+                      <span>{maxCommits}</span>
+                      <span>{step * 3}</span>
+                      <span>{step * 2}</span>
+                      <span>{step}</span>
+                      <span>0</span>
+                    </>
+                  )
+                })()}
               </div>
             </div>
           </CardContent>

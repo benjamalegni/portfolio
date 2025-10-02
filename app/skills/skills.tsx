@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { resume } from "@/data/resume"
 import { buildGithubSummary } from "@/lib/github-summary"
+import PieChart from "../../components/ui/piechart"
 
 export default function AgentNetworkPage() {
   const [topLanguages, setTopLanguages] = useState<{ name: string; percentage: number }[]>([])
   const [githubTotals, setGithubTotals] = useState<{ totalRepos: number; totalStars: number } | null>(null)
+  const [streak, setStreak] = useState<{ current: number; longest: number } | null>(null)
 
   useEffect(() => {
     ;(async () => {
@@ -16,6 +17,7 @@ export default function AgentNetworkPage() {
         const s = await buildGithubSummary("benjamalegni")
         setTopLanguages(s.topLanguages)
         setGithubTotals(s.totals)
+        setStreak(s.streak)
       } catch {}
     })()
   }, [])
@@ -37,15 +39,11 @@ export default function AgentNetworkPage() {
         </CardHeader>
         <CardContent className="space-y-2">
           {topLanguages.length === 0 ? (
-            <p className="text-neutral-500 text-sm">No language data available.</p>
+            <p className="text-neutral-500 text-sm">Loading...</p>
           ) : (
-            topLanguages.map((lang) => (
-              <div key={lang.name} className="flex items-center justify-between">
-                <span className="text-white">{lang.name}</span>
-                <Progress value={lang.percentage} className="w-1/2" />
-                <span className="text-neutral-400">{lang.percentage}%</span>
-              </div>
-            ))
+            <div className="h-[400px]">
+              <PieChart data={topLanguages.map((lang) => ({ id: lang.name, value: lang.percentage, label: lang.name }))} />
+            </div>
           )}
         </CardContent>
       </Card>
@@ -133,7 +131,7 @@ export default function AgentNetworkPage() {
           <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">GITHUB STATISTICS</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {githubTotals ? (
+          {githubTotals && streak ? (
             <>
               <div className="flex items-center justify-between">
                 <span className="text-white">Public Repositories:</span>
@@ -145,7 +143,7 @@ export default function AgentNetworkPage() {
               </div>
             </>
           ) : (
-            <p className="text-neutral-500 text-sm">No GitHub statistics available.</p>
+            <p className="text-neutral-500 text-sm">Loading statistics...</p>
           )}
         </CardContent>
       </Card>

@@ -10,9 +10,9 @@
     "start": "next start",
     "export": "next build",
     "deploy": "GITHUB_PAGES=true npm run export && mkdir -p out && echo > out/.nojekyll && gh-pages -f -d out -b gh-pages --dotfiles"
-
   },
   "dependencies": {
+    "@nivo/pie": "^0.99.0",
     "@radix-ui/react-progress": "1.1.1",
     "@radix-ui/react-slot": "1.1.1",
     "class-variance-authority": "^0.7.1",

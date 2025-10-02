@@ -33,9 +33,14 @@ export default function CyberpunkPortfolio() {
         const active = repos.filter((r) => !r.isFork && r.status !== "archived").length
         setActiveProjects(active)
         const currentYear = new Date().getFullYear()
+        const ownRepoPrefix = `${username}/`
         const commits = events
-          .filter((e) => e.type === "PushEvent" && new Date(e.createdAt).getFullYear() === currentYear)
-          .reduce((sum, e) => sum + (e.commits || 0), 0)
+          .filter((e) => 
+            e.type === "PushEvent" && 
+            e.repoName.startsWith(ownRepoPrefix) &&
+            new Date(e.createdAt).getFullYear() === currentYear
+          )
+          .reduce((sum, e) => sum + e.commits, 0)
         setCommitsThisYear(commits)
       } catch {
         // ignore errors, keep defaults

@@ -54,14 +54,33 @@ export async function fetchUserEvents(username: string): Promise<SimplifiedEvent
     "X-GitHub-Api-Version": "2022-11-28",
   }
 
-  // url for user
-  const url = `${GITHUB_API_BASE}/users/${encodeURIComponent(username)}/events?per_page=100`
-  const res = await fetch(url, { headers, cache: "no-store" })
+  // Fetch multiple pages to get more events (last 300 events to ensure we cover 7 days)
+  const allEvents: any[] = []
+  
+  for (let page = 1; page <= 3; page++) {
+    const url = `${GITHUB_API_BASE}/users/${encodeURIComponent(username)}/events?per_page=100&page=${page}`
+    const res = await fetch(url, { headers, cache: "no-store" })
 
-  if (!res.ok) return (console.error("Failed to fetch user events, this is github.ts"), []);
+    if (!res.ok) {
+      console.error(`Failed to fetch user events page ${page}`)
+      break
+    }
 
-  const events = (await res.json()) as any[]
-  return events.map((e: any) => {
+    const events = (await res.json()) as any[]
+    if (events.length === 0) break
+    
+    allEvents.push(...events)
+    
+    // If we have events older than 7 days, we can stop
+    const oldestEvent = events[events.length - 1]
+    const oldestDate = new Date(oldestEvent.created_at)
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    
+    if (oldestDate < sevenDaysAgo) break
+  }
+
+  return allEvents.map((e: any) => {
     const type: string = e.type
     const repoName: string = e.repo?.name || ""
     const repoUrl: string = repoName ? `https://github.com/${repoName}` : ""
