@@ -48,6 +48,59 @@ export type SimplifiedEvent = {
   createdAt: string
 }
 
+export type WeeklyCommitActivity = {
+  day: string
+  date: string
+  commits: number
+}
+
+export type CommitsResponse = {
+  username: string
+  totalCommits: number
+  weeklyActivity?: WeeklyCommitActivity[]
+  yearlyActivity?: Array<{ month: string; date: string; commits: number }>
+  period?: 'week' | 'year'
+}
+
+// Fetch commits from worker (preferred, authenticated & accurate)
+export async function fetchCommitsFromWorker(username: string, period: 'week' | 'year' = 'week'): Promise<CommitsResponse | null> {
+  if (!WORKER_BASE_URL) {
+    console.warn(`[GitHub Worker] WORKER_BASE_URL not configured`)
+    return null
+  }
+
+  try {
+    const url = new URL(`${WORKER_BASE_URL}/commits/${period}`)
+    url.searchParams.set("username", username)
+    const res = await fetch(url.toString(), { cache: "no-store" })
+    if (!res.ok) {
+      console.warn(`[GitHub Worker] /commits/${period} returned ${res.status}`)
+      return null
+    }
+    const data = (await res.json().catch(() => null)) as CommitsResponse | null
+    if (!data || typeof data.totalCommits !== 'number') {
+      console.warn(`[GitHub Worker] Invalid response format:`, data)
+      return null
+    }
+    
+    // Validate based on period
+    if (period === 'week' && !Array.isArray(data.weeklyActivity)) {
+      console.warn(`[GitHub Worker] Missing weeklyActivity in response`)
+      return null
+    }
+    if (period === 'year' && !Array.isArray(data.yearlyActivity)) {
+      console.warn(`[GitHub Worker] Missing yearlyActivity in response`)
+      return null
+    }
+    
+    console.log(`[GitHub Worker] Fetched commits (${period}): total=${data.totalCommits}`)
+    return data
+  } catch (err) {
+    console.warn(`[GitHub Worker] Failed to fetch commits:`, err)
+    return null
+  }
+}
+
 export async function fetchUserEvents(username: string): Promise<SimplifiedEvent[]> {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
@@ -62,11 +115,12 @@ export async function fetchUserEvents(username: string): Promise<SimplifiedEvent
     const res = await fetch(url, { headers, cache: "no-store" })
 
     if (!res.ok) {
-      console.error(`Failed to fetch user events page ${page}`)
+      console.error(`[GitHub] Failed to fetch user events page ${page} (status ${res.status})`)
       break
     }
 
     const events = (await res.json()) as any[]
+    console.log(`[GitHub] Fetched events page ${page}: ${events.length} items`)
     if (events.length === 0) break
     
     allEvents.push(...events)
@@ -80,7 +134,7 @@ export async function fetchUserEvents(username: string): Promise<SimplifiedEvent
     if (oldestDate < sevenDaysAgo) break
   }
 
-  return allEvents.map((e: any) => {
+  const simplified = allEvents.map((e: any) => {
     const type: string = e.type
     const repoName: string = e.repo?.name || ""
     const repoUrl: string = repoName ? `https://github.com/${repoName}` : ""
@@ -88,7 +142,11 @@ export async function fetchUserEvents(username: string): Promise<SimplifiedEvent
     let commits = 0
     if (type === "PushEvent") {
       branch = e.payload?.ref ? String(e.payload.ref).replace("refs/heads/", "") : null
-      commits = Array.isArray(e.payload?.commits) ? e.payload.commits.length : 0
+      // Prefer GitHub numeric counters; fall back to commits array length
+      const distinctSize = Number(e.payload?.distinct_size) || 0
+      const totalSize = Number(e.payload?.size) || 0
+      const commitsArrayLen = Array.isArray(e.payload?.commits) ? e.payload.commits.length : 0
+      commits = distinctSize || totalSize || commitsArrayLen
     }
     return {
       type,
@@ -99,6 +157,14 @@ export async function fetchUserEvents(username: string): Promise<SimplifiedEvent
       createdAt: e.created_at || new Date().toISOString(),
     }
   })
+
+  try {
+    const pushCount = simplified.filter(e => e.type === "PushEvent").length
+    const pushCommits = simplified.filter(e => e.type === "PushEvent").reduce((s, e) => s + (e.commits || 0), 0)
+    console.log(`[GitHub] Total events: ${simplified.length}, push events: ${pushCount}, push commits (raw sum): ${pushCommits}`)
+  } catch {}
+
+  return simplified
 }
 
 //  function for top languages dashboard

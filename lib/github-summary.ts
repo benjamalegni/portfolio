@@ -1,4 +1,4 @@
-import { fetchUserRepos, fetchUserEvents, aggregateTopLanguages, formatTimeAgo } from "@/lib/github"
+import { fetchUserRepos, fetchUserEvents, fetchCommitsFromWorker, aggregateTopLanguages, formatTimeAgo } from "@/lib/github"
 import type { Project } from "@/types/project_type"
 
 export type GithubSummary = {
@@ -11,9 +11,49 @@ export type GithubSummary = {
   streak: { current: number; longest: number }
 }
 
+export type YearlyCommitsData = {
+  username: string
+  period: 'year'
+  totalCommits: number
+  yearlyActivity: Array<{ month: string; date: string; commits: number }>
+}
+
+// Fetch yearly commits data from worker
+export async function fetchYearlyCommits(username: string): Promise<YearlyCommitsData | null> {
+  try {
+    const data = await fetchCommitsFromWorker(username, 'year')
+    if (!data) {
+      console.warn(`[Summary] fetchCommitsFromWorker returned null for year`)
+      return null
+    }
+    if (!data.yearlyActivity || !Array.isArray(data.yearlyActivity)) {
+      console.warn(`[Summary] Missing or invalid yearlyActivity:`, data)
+      return null
+    }
+    console.log(`[Summary] fetchYearlyCommits success: ${data.totalCommits} commits`)
+    return {
+      username: data.username,
+      period: 'year',
+      totalCommits: data.totalCommits,
+      yearlyActivity: data.yearlyActivity
+    }
+  } catch (err) {
+    console.warn(`[Summary] Failed to fetch yearly commits:`, err)
+    return null
+  }
+}
+
 export async function buildGithubSummary(username: string): Promise<GithubSummary> {
-  const reposAll: Project[] = await fetchUserRepos(username)
-  const repos: Project[] = reposAll.filter((r) => !r.isFork && r.status !== "archived")
+  console.log(`[Summary] Building GitHub summary for username='${username}'`)
+  
+  let reposAll: Project[] = []
+  try {
+    reposAll = await fetchUserRepos(username)
+  } catch (err) {
+    console.warn(`[Summary] fetchUserRepos failed, continuing without repos: ${(err as any)?.message || err}`)
+  }
+  
+  const repos: Project[] = (reposAll || []).filter((r) => !r.isFork && r.status !== "archived")
   const totalRepos = repos.length
   const totalStars = repos.reduce((sum, r) => sum + (r.stars || 0), 0)
 
@@ -29,37 +69,49 @@ export async function buildGithubSummary(username: string): Promise<GithubSummar
       lastUpdate: formatTimeAgo(`${p.lastUpdate}T00:00:00Z`),
     }))
 
+  // Try to fetch commits from worker first (more accurate - uses /commits/week)
+  const commitsData = await fetchCommitsFromWorker(username, 'week')
   const events = await fetchUserEvents(username)
-  const ownRepoPrefix = `${username}/`
 
-  // Build last 7 calendar days including today
-  const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-  function toLocalYmd(d: Date): string {
-    const y = d.getFullYear()
-    const m = String(d.getMonth() + 1).padStart(2, "0")
-    const day = String(d.getDate()).padStart(2, "0")
-    return `${y}-${m}-${day}`
-  }
-
-  const today = new Date()
-  const last7Days: { date: Date; ymd: string; label: string }[] = []
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)
-    last7Days.push({ date: d, ymd: toLocalYmd(d), label: weekdayLabels[d.getDay()] })
-  }
-
-  const weeklyActivity = last7Days.map(({ ymd, label }) => {
-    let commitsForDay = 0
-    for (const ev of events) {
-      if (ev.type !== "PushEvent") continue
-      if (!ev.repoName.startsWith(ownRepoPrefix)) continue
-      const evDate = new Date(ev.createdAt)
-      if (toLocalYmd(evDate) !== ymd) continue
-      // Count actual commits from the event (use exact number from GitHub API)
-      commitsForDay += ev.commits
+  // Use worker commits data if available, otherwise fall back to events
+  let weeklyActivity: Array<{ day: string; commits: number }>
+  
+  if (commitsData && commitsData.weeklyActivity && commitsData.weeklyActivity.length > 0) {
+    // Use worker data (more accurate, directly from commits API)
+    weeklyActivity = commitsData.weeklyActivity.map(d => ({ day: d.day, commits: d.commits }))
+    console.log(`[Summary] Using worker commits data: total=${commitsData.totalCommits}`, weeklyActivity)
+  } else {
+    // Fall back to events-based calculation
+    console.log(`[Summary] Worker commits not available, falling back to events`)
+    const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    function toLocalYmd(d: Date): string {
+      const y = d.getFullYear()
+      const m = String(d.getMonth() + 1).padStart(2, "0")
+      const day = String(d.getDate()).padStart(2, "0")
+      return `${y}-${m}-${day}`
     }
-    return { day: label, commits: commitsForDay }
-  })
+
+    const today = new Date()
+    const last7Days: { date: Date; ymd: string; label: string }[] = []
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)
+      last7Days.push({ date: d, ymd: toLocalYmd(d), label: weekdayLabels[d.getDay()] })
+    }
+
+    weeklyActivity = last7Days.map(({ ymd, label }) => {
+      let commitsForDay = 0
+      for (const ev of events) {
+        if (ev.type !== "PushEvent") continue
+        const evDate = new Date(ev.createdAt)
+        if (toLocalYmd(evDate) !== ymd) continue
+        commitsForDay += ev.commits
+      }
+      return { day: label, commits: commitsForDay }
+    })
+
+    const totalWeekly = weeklyActivity.reduce((s, d) => s + d.commits, 0)
+    console.log(`[Summary] WeeklyActivity (from events) totalCommits=${totalWeekly}`, weeklyActivity)
+  }
 
   let langAgg = await aggregateTopLanguages(username, repos.map((r) => ({ name: r.name })))
   if (!langAgg || langAgg.length === 0) {

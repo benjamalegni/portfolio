@@ -1,6 +1,7 @@
 import { ChevronRight, Monitor, Shield, Target, Users, Contact } from "lucide-react"
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { SectionId } from "./page";
+import { fetchYearlyCommits } from "@/lib/github-summary";
 
 type Props = {
   activeSection: SectionId,
@@ -16,9 +17,33 @@ type Item = {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
 };
-const iconSize = "w-4 h-4 sm:w-5 sm:h-5"
+
 
 export function NavSide({activeSection, setActiveSection, sidebarCollapsed, activeProjects, commitsThisYear, setSideBarCollapsed}:Props){
+
+    const [yearlyCommits, setYearlyCommits] = useState(0)
+    const [isLoadingCommits, setIsLoadingCommits] = useState(true)
+    
+    useEffect(() => {
+      const username = process.env.NEXT_PUBLIC_GITHUB_USERNAME || "benjamalegni"
+      setIsLoadingCommits(true)
+      fetchYearlyCommits(username)
+        .then(data => {
+          if (data && data.totalCommits) {
+            setYearlyCommits(data.totalCommits)
+            console.log(`[NavSide] Loaded ${data.totalCommits} commits this year`)
+          } else {
+            console.warn('[NavSide] No yearly commits data received')
+          }
+        })
+        .catch(err => {
+          console.error('[NavSide] Failed to fetch yearly commits:', err)
+        })
+        .finally(() => {
+          setIsLoadingCommits(false)
+        })
+    }, [])
+
     const items:Item[] = [
 
                 { id: "projects", icon: Target, label: "PROJECTS" },
@@ -83,7 +108,13 @@ export function NavSide({activeSection, setActiveSection, sidebarCollapsed, acti
               </div>
               <div className="text-xs text-neutral-500">
                 <div>PROJECTS: {activeProjects} ACTIVE</div>
-                <div>COMMITS: {commitsThisYear.toLocaleString()} THIS YEAR</div>
+                <div>
+                  COMMITS: {isLoadingCommits ? (
+                    <span className="text-neutral-600">...</span>
+                  ) : (
+                    <span className="text-orange-500 font-bold">{yearlyCommits.toLocaleString()}</span>
+                  )} THIS YEAR
+                </div>
               </div>
             </div>
           )}
