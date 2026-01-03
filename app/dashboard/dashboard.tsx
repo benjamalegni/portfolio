@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const weeklyActivity = summary?.weeklyActivity || []
   const recentProjects = summary?.recentProjects || []
   const developmentActivity = summary?.developmentActivity || []
+  const eventsError = summary?.eventsError
 
   const currentStreak = summary?.streak ? summary.streak.current : 0;
 
@@ -222,9 +223,14 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3 max-h-80 overflow-y-auto">
-              {developmentActivity.length === 0 ? (
+              {!summary ? (
                 loadingElement
-              ) : (
+              ) : summary.eventsError ? (
+                <div className="text-orange-500 text-sm text-center py-4">
+                  <div className="font-semibold mb-1">Error fetching activity data</div>
+                  <div className="text-xs text-neutral-400">{summary.eventsError.message}</div>
+                </div>
+              ) : developmentActivity && developmentActivity.length > 0 ? (
                 developmentActivity.map((activity, index) => (
                   <div
                     key={index}
@@ -242,6 +248,10 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 ))
+              ) : (
+                <div className="text-neutral-500 text-sm text-center py-4">
+                  No recent development activity found
+                </div>
               )}
             </div>
           </CardContent>

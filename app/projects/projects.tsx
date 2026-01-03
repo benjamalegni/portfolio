@@ -20,6 +20,8 @@ export default function ProjectsPage() {
 
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
 
+  //only pin financialfeeling project for now
+  const pinnedProjectNames = new Set(['financialfeeling'])
 
   useEffect(() => {
     async function load(){
@@ -30,7 +32,14 @@ export default function ProjectsPage() {
           for (const repo of repos) {           
             if (!existingKeys.has(repo.id)) {
               repo.image = `${basePath}/${repo.name}-preview.png`
+              repo.pinned = pinnedProjectNames.has(repo.name.toLowerCase())
               merged.push(repo)
+            } else {
+              // Actualizar el estado pinned para proyectos existentes
+              const existingIndex = merged.findIndex((p) => p.id === repo.id)
+              if (existingIndex !== -1) {
+                merged[existingIndex].pinned = pinnedProjectNames.has(repo.name.toLowerCase())
+              }
             }
           }
           return merged
@@ -43,16 +52,24 @@ export default function ProjectsPage() {
 
   const allTags = [...new Set(projects.flatMap((p) => p.tags))]
 
-  const filteredProjects = projects.filter((project) => {
-    const matchesSearch =
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (project.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredProjects = projects
+    .filter((project) => {
+      const matchesSearch =
+        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (project.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
 
     const matchesTag = selectedTag === "" || project.tags.includes(selectedTag)
 
-    return matchesSearch && matchesTag
-  })
+      return matchesSearch && matchesTag
+    })
+    .sort((a, b) => {
+      // Proyectos fijados primero
+      if (a.pinned && !b.pinned) return -1
+      if (!a.pinned && b.pinned) return 1
+      // Luego ordenar por última actualización (más reciente primero)
+      return b.lastUpdate.localeCompare(a.lastUpdate)
+    })
 
   const getProjectStatusBadgeClass = (status: Project["status"]) => {
     switch (status) {

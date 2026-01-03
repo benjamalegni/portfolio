@@ -115,6 +115,12 @@ export async function fetchUserEvents(username: string): Promise<SimplifiedEvent
     const res = await fetch(url, { headers, cache: "no-store" })
 
     if (!res.ok) {
+      if (res.status === 403) {
+        // Throw a special error for rate limiting
+        const error: any = new Error(`GitHub API rate limit exceeded (403)`)
+        error.status = 403
+        throw error
+      }
       console.error(`[GitHub] Failed to fetch user events page ${page} (status ${res.status})`)
       break
     }

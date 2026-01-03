@@ -20,9 +20,24 @@ type Item = {
 
 
 export function NavSide({activeSection, setActiveSection, sidebarCollapsed, activeProjects, commitsThisYear, setSideBarCollapsed}:Props){
-
     const [yearlyCommits, setYearlyCommits] = useState(0)
     const [isLoadingCommits, setIsLoadingCommits] = useState(true)
+    const [isLowResolution, setIsLowResolution] = useState(true)
+    
+    // Detectar resolución baja (1280x720 o menor)
+    useEffect(() => {
+      const checkResolution = () => {
+        if (typeof window !== 'undefined') {
+          const screenWidth = window.screen.width;
+          const screenHeight = window.screen.height;
+          setIsLowResolution(screenWidth <= 1280 || screenHeight <= 720);
+        }
+      };
+
+      checkResolution();
+      window.addEventListener('resize', checkResolution);
+      return () => window.removeEventListener('resize', checkResolution);
+    }, [])
     
     useEffect(() => {
       const username = process.env.NEXT_PUBLIC_GITHUB_USERNAME || "benjamalegni"
@@ -113,16 +128,16 @@ export function NavSide({activeSection, setActiveSection, sidebarCollapsed, acti
                     <span className="text-neutral-600">...</span>
                   ) : (
                     <span className="text-orange-500 font-bold">{yearlyCommits.toLocaleString()}</span>
-                  )} THIS YEAR
+                  )} YTD 
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {!sidebarCollapsed && (
+        {!sidebarCollapsed && !isLowResolution && (
           <div
-            className="mt-6 overflow-hidden border border-neutral-500 hidden md:block"
+            className="w-full mt-auto pt-6 border border-neutral-500 hidden md:flex justify-center items-center"
           >
             <video
               src={videoSrc}

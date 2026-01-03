@@ -9,6 +9,7 @@ export type GithubSummary = {
   developmentActivity: Array<{ time: string; action: string; repo: string; branch: string | null; url: string }>
   topLanguages: Array<{ name: string; percentage: number }>
   streak: { current: number; longest: number }
+  eventsError?: { status: number; message: string }
 }
 
 export type YearlyCommitsData = {
@@ -71,7 +72,18 @@ export async function buildGithubSummary(username: string): Promise<GithubSummar
 
   // Try to fetch commits from worker first (more accurate - uses /commits/week)
   const commitsData = await fetchCommitsFromWorker(username, 'week')
-  const events = await fetchUserEvents(username)
+  let events: Array<{ type: string; createdAt: string; repoName: string; repoUrl: string; branch: string | null; commits: number }> = []
+  let eventsError: { status: number; message: string } | undefined = undefined
+  try {
+    events = await fetchUserEvents(username)
+  } catch (err: any) {
+    if (err?.status === 403) {
+      eventsError = { status: 403, message: "GitHub API rate limit exceeded. Please try again later." }
+    } else {
+      console.warn(`[Summary] fetchUserEvents failed, continuing without events:`, err)
+    }
+    events = []
+  }
 
   // Use worker commits data if available, otherwise fall back to events
   let weeklyActivity: Array<{ day: string; commits: number }>
@@ -126,20 +138,23 @@ export async function buildGithubSummary(username: string): Promise<GithubSummar
     .slice(0, 5)
     .map((l) => ({ name: l.name, percentage: Math.round((l.bytes / totalBytes) * 100) }))
 
-  const developmentActivity = events.slice(0, 10).map((ev) => {
-    let action = ev.type
-    if (ev.type === "PushEvent") action = "pushed commits to"
-    else if (ev.type === "PullRequestEvent") action = "opened pull request in"
-    else if (ev.type === "CreateEvent") action = "created"
-    else if (ev.type === "WatchEvent") action = "starred"
-    return {
-      time: formatTimeAgo(ev.createdAt),
-      action,
-      repo: ev.repoName.split("/")[1] || ev.repoName,
-      branch: ev.branch,
-      url: ev.repoUrl,
-    }
-  })
+  const developmentActivity = events
+    .filter((ev) => ev && ev.type && ev.createdAt && ev.repoName)
+    .slice(0, 10)
+    .map((ev) => {
+      let action = ev.type
+      if (ev.type === "PushEvent") action = "pushed commits to"
+      else if (ev.type === "PullRequestEvent") action = "opened pull request in"
+      else if (ev.type === "CreateEvent") action = "created"
+      else if (ev.type === "WatchEvent") action = "starred"
+      return {
+        time: formatTimeAgo(ev.createdAt),
+        action,
+        repo: ev.repoName.split("/")[1] || ev.repoName,
+        branch: ev.branch || null,
+        url: ev.repoUrl || "#",
+      }
+    })
 
   const streak = calculateStreak(events, username)
 
@@ -151,6 +166,7 @@ export async function buildGithubSummary(username: string): Promise<GithubSummar
     developmentActivity,
     topLanguages,
     streak,
+    eventsError,
   }
 }
 
