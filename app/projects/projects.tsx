@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, Github, ExternalLink, Star, GitFork, Code, Calendar } from "lucide-react"
+import { Search, Github, ExternalLink, Star, GitFork, Code, Calendar, ChevronDown, ChevronUp } from "lucide-react"
 import type { Project } from "@/types/project_type"
 import { fetchUserRepos } from "@/lib/github"
 import { createPortal } from "react-dom"
@@ -17,6 +17,7 @@ export default function ProjectsPage() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
   const [githubProfileUrl, setGithubProfileUrl] = useState<string>("https://github.com/benjamalegni")
+  const [showAllTags, setShowAllTags] = useState(false)
 
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
 
@@ -127,7 +128,7 @@ export default function ProjectsPage() {
               >
                 All
               </Button>
-              {allTags.slice(0, 6).map((tag) => (
+              {(showAllTags ? allTags : allTags.slice(0, 6)).map((tag) => (
                 <Button
                   key={tag}
                   variant={selectedTag === tag ? "default" : "outline"}
@@ -138,6 +139,26 @@ export default function ProjectsPage() {
                   {tag}
                 </Button>
               ))}
+              {allTags.length > 6 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAllTags(!showAllTags)}
+                  className="border-neutral-600 text-neutral-400 hover:bg-neutral-800"
+                >
+                  {showAllTags ? (
+                    <>
+                      <ChevronUp className="w-4 h-4 mr-1" />
+                      Less
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4 mr-1" />
+                      More ({allTags.length - 6})
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>

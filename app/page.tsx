@@ -1,6 +1,6 @@
 "use client"
 
-import { SetStateAction, useState } from "react"
+import { useState } from "react"
 import DashboardPage from "./dashboard/dashboard"
 import ProjectsPage from "./projects/projects"
 import SkillsPage from "./skills/skills"

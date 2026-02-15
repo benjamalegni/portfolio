@@ -109,7 +109,7 @@
 .retro-crt::before {
   background: repeating-linear-gradient(
     0deg,
-    rgba(255, 255, 255, 1) 0 0px,
+    rgba(255, 255, 255, 0.3) 0 0px,
     rgba(0, 0, 0, 0) 1px 3px
   );
   mix-blend-mode: overlay;
