@@ -30,7 +30,7 @@ export default function ProjectsPage() {
         setProjects((prev) => {
           const existingKeys = new Set(prev.map((p) => p.id))
           const merged = [...prev]
-          for (const repo of repos) {           
+          for (const repo of repos.filter((item) => item.status !== "archived")) {
             if (!existingKeys.has(repo.id)) {
               repo.image = `${basePath}/${repo.name}-preview.png`
               repo.pinned = pinnedProjectNames.has(repo.name.toLowerCase())
@@ -55,6 +55,8 @@ export default function ProjectsPage() {
 
   const filteredProjects = projects
     .filter((project) => {
+      if (project.status === "archived") return false
+
       const matchesSearch =
         project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (project.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||

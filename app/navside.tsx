@@ -2,6 +2,7 @@ import { ChevronRight, Monitor, Shield, Target, Users, Contact } from "lucide-re
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { SectionId } from "./page";
 import { fetchYearlyCommits } from "@/lib/github-summary";
+import { EyeBallzSidebarVideo } from "./eye-ballz-sidebar-video";
 
 type Props = {
   activeSection: SectionId,
@@ -73,7 +74,7 @@ export function NavSide({activeSection, setActiveSection, sidebarCollapsed, acti
       setSideBarCollapsed(!sidebarCollapsed)
     }
 
-    const videoSrc = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/assets/videos/welcome_3Dface.webm`
+    const videoSrc = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/assets/videos/eye-ballz.mp4`
 
     return(
       <div className="flex h-full min-h-0 flex-col">
@@ -137,16 +138,9 @@ export function NavSide({activeSection, setActiveSection, sidebarCollapsed, acti
 
         {!sidebarCollapsed && !isLowResolution && (
           <div
-            className="w-full mt-auto pt-6 border border-neutral-500 hidden md:flex justify-center items-center"
+            className="mt-auto hidden w-full pt-6 md:flex"
           >
-            <video
-              src={videoSrc}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-48 h-full object-cover"
-            />
+            <EyeBallzSidebarVideo src={videoSrc} />
           </div>
         )}
       </div>

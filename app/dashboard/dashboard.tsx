@@ -26,6 +26,14 @@ export default function DashboardPage() {
   const recentProjects = summary?.recentProjects || []
   const developmentActivity = summary?.developmentActivity || []
   const eventsError = summary?.eventsError
+  const maxWeeklyCommits = weeklyActivity.length > 0 ? Math.max(...weeklyActivity.map((d) => d.commits), 1) : 1
+  const yAxisLabels = [
+    maxWeeklyCommits,
+    Math.max(1, Math.round(maxWeeklyCommits * 0.75)),
+    Math.max(1, Math.round(maxWeeklyCommits * 0.5)),
+    Math.max(1, Math.round(maxWeeklyCommits * 0.25)),
+    0,
+  ]
 
   const currentStreak = summary?.streak ? summary.streak.current : 0;
 
@@ -160,22 +168,26 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="h-48 relative">
+              <div className="absolute left-0 top-0 h-full w-9 flex flex-col justify-between text-xs text-neutral-500 font-mono text-right pr-2">
+                {weeklyActivity.length > 0 && yAxisLabels.map((label, index) => (
+                  <span key={`${label}-${index}`}>{label}</span>
+                ))}
+              </div>
+
               {/* Chart Grid */}
-              <div className="absolute inset-0 grid grid-cols-7 grid-rows-6 opacity-20">
+              <div className="absolute inset-y-0 left-10 right-0 grid grid-cols-7 grid-rows-6 opacity-20">
                 {Array.from({ length: 42 }).map((_, i) => (
                   <div key={i} className="border border-neutral-700"></div>
                 ))}
               </div>
 
               {/* Bar Chart */}
-              <div className="absolute bottom-0 left-0 w-full h-full flex items-end justify-around px-4">
+              <div className="absolute bottom-0 left-10 right-0 h-full flex items-end justify-around px-4">
                 {weeklyActivity.length === 0 ? (
                   loadingElement
                 ) : (
                   weeklyActivity.map((day, index) => {
-                    // Calculate max commits for better scaling
-                    const maxCommits = Math.max(...weeklyActivity.map(d => d.commits), 20)
-                    const heightPercentage = day.commits === 0 ? 2 : Math.min(95, (day.commits / maxCommits) * 95)
+                    const heightPercentage = day.commits === 0 ? 2 : Math.min(95, (day.commits / maxWeeklyCommits) * 95)
                     
                     return (
                       <div key={index} className="flex flex-col items-center gap-2 relative group">
@@ -194,23 +206,6 @@ export default function DashboardPage() {
                     )
                   })
                 )}
-              </div>
-
-              {/* Y-axis labels */}
-              <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-neutral-500 -ml-8 font-mono">
-                {weeklyActivity.length > 0 && (() => {
-                  const maxCommits = Math.max(...weeklyActivity.map(d => d.commits), 20)
-                  const step = Math.ceil(maxCommits / 4)
-                  return (
-                    <>
-                      <span>{maxCommits}</span>
-                      <span>{step * 3}</span>
-                      <span>{step * 2}</span>
-                      <span>{step}</span>
-                      <span>0</span>
-                    </>
-                  )
-                })()}
               </div>
             </div>
           </CardContent>

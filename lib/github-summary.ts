@@ -19,6 +19,55 @@ export type YearlyCommitsData = {
   yearlyActivity: Array<{ month: string; date: string; commits: number }>
 }
 
+function toLocalYmd(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
+}
+
+function buildLast7Days() {
+  const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  const today = new Date()
+  const days: Array<{ ymd: string; label: string }> = []
+
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)
+    days.push({ ymd: toLocalYmd(date), label: weekdayLabels[date.getDay()] })
+  }
+
+  return days
+}
+
+function normalizeWeeklyActivity(
+  weeklyActivity: Array<{ day: string; date?: string; commits: number }> | undefined
+) {
+  if (!weeklyActivity || weeklyActivity.length === 0) {
+    return [] as Array<{ day: string; commits: number }>
+  }
+
+  const commitsByDate = new Map<string, number>()
+
+  for (const entry of weeklyActivity) {
+    if (!entry?.date) continue
+    commitsByDate.set(entry.date, (commitsByDate.get(entry.date) || 0) + (entry.commits || 0))
+  }
+
+  const last7Days = buildLast7Days()
+
+  if (commitsByDate.size > 0) {
+    return last7Days.map(({ ymd, label }) => ({
+      day: label,
+      commits: commitsByDate.get(ymd) || 0,
+    }))
+  }
+
+  return weeklyActivity.slice(-7).map((entry) => ({
+    day: entry.day,
+    commits: entry.commits || 0,
+  }))
+}
+
 // Fetch yearly commits data from worker
 export async function fetchYearlyCommits(username: string): Promise<YearlyCommitsData | null> {
   try {
@@ -89,26 +138,14 @@ export async function buildGithubSummary(username: string): Promise<GithubSummar
   let weeklyActivity: Array<{ day: string; commits: number }>
   
   if (commitsData && commitsData.weeklyActivity && commitsData.weeklyActivity.length > 0) {
-    // Use worker data (more accurate, directly from commits API)
-    weeklyActivity = commitsData.weeklyActivity.map(d => ({ day: d.day, commits: d.commits }))
+    // Use worker data (more accurate, directly from commits API), but normalize it
+    // to the last 7 calendar days so the chart order and empty days are correct.
+    weeklyActivity = normalizeWeeklyActivity(commitsData.weeklyActivity)
     console.log(`[Summary] Using worker commits data: total=${commitsData.totalCommits}`, weeklyActivity)
   } else {
     // Fall back to events-based calculation
     console.log(`[Summary] Worker commits not available, falling back to events`)
-    const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    function toLocalYmd(d: Date): string {
-      const y = d.getFullYear()
-      const m = String(d.getMonth() + 1).padStart(2, "0")
-      const day = String(d.getDate()).padStart(2, "0")
-      return `${y}-${m}-${day}`
-    }
-
-    const today = new Date()
-    const last7Days: { date: Date; ymd: string; label: string }[] = []
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)
-      last7Days.push({ date: d, ymd: toLocalYmd(d), label: weekdayLabels[d.getDay()] })
-    }
+    const last7Days = buildLast7Days()
 
     weeklyActivity = last7Days.map(({ ymd, label }) => {
       let commitsForDay = 0
