@@ -28,6 +28,7 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     let isMounted = true
+    const normalizedBasePath = basePath.endsWith("/") ? basePath.slice(0, -1) : basePath
 
     async function load() {
       setIsLoading(true)
@@ -36,6 +37,10 @@ export default function ProjectsPage() {
         .filter((item) => item.status !== "archived")
         .map((repo) => ({
           ...repo,
+          image:
+            repo.image && repo.image.startsWith("/")
+              ? `${normalizedBasePath}${repo.image}`
+              : repo.image,
           pinned: pinnedProjectNames.has(repo.name.toLowerCase()),
         }))
 
