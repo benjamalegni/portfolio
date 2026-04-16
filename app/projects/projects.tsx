@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Search, Github, ExternalLink, Star, GitFork, Code, Calendar, ChevronDown, ChevronUp } from "lucide-react"
 import type { Project } from "@/types/project_type"
 import { fetchUserRepos } from "@/lib/github"
+import { sharedRepos } from "@/data/sharedRepos"
 import { createPortal } from "react-dom"
 
 
@@ -16,6 +17,7 @@ export default function ProjectsPage() {
   const [selectedTag, setSelectedTag] = useState("")
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [githubProfileUrl, setGithubProfileUrl] = useState<string>("https://github.com/benjamalegni")
   const [showAllTags, setShowAllTags] = useState(false)
 
@@ -25,31 +27,51 @@ export default function ProjectsPage() {
   const pinnedProjectNames = new Set(['financialfeeling'])
 
   useEffect(() => {
-    async function load(){
-      fetchUserRepos("benjamalegni").then((repos) => {
-        setProjects((prev) => {
-          const existingKeys = new Set(prev.map((p) => p.id))
-          const merged = [...prev]
-          for (const repo of repos.filter((item) => item.status !== "archived")) {
-            if (!existingKeys.has(repo.id)) {
-              repo.image = `${basePath}/${repo.name}-preview.png`
-              repo.pinned = pinnedProjectNames.has(repo.name.toLowerCase())
-              merged.push(repo)
-            } else {
-              // Actualizar el estado pinned para proyectos existentes
-              const existingIndex = merged.findIndex((p) => p.id === repo.id)
-              if (existingIndex !== -1) {
-                merged[existingIndex].pinned = pinnedProjectNames.has(repo.name.toLowerCase())
-              }
-            }
-          }
-          return merged
-        })
-        setGithubProfileUrl(`https://github.com/benjamalegni`)
-      })
+    let isMounted = true
+
+    async function load() {
+      setIsLoading(true)
+
+      const normalizedShared = sharedRepos
+        .filter((item) => item.status !== "archived")
+        .map((repo) => ({
+          ...repo,
+          pinned: pinnedProjectNames.has(repo.name.toLowerCase()),
+        }))
+
+      let normalizedGithub: Project[] = []
+
+      try {
+        const repos = await fetchUserRepos("benjamalegni")
+        normalizedGithub = repos
+          .filter((item) => item.status !== "archived")
+          .map((repo) => ({
+            ...repo,
+            image: `${basePath}/${repo.name}-preview.png`,
+            pinned: pinnedProjectNames.has(repo.name.toLowerCase()),
+          }))
+      } catch {
+        normalizedGithub = []
+      }
+
+      const mergedById = new Map<string, Project>()
+      for (const repo of [...normalizedShared, ...normalizedGithub]) {
+        mergedById.set(repo.id, repo)
+      }
+
+      if (isMounted) {
+        setProjects(Array.from(mergedById.values()))
+        setGithubProfileUrl("https://github.com/benjamalegni")
+        setIsLoading(false)
+      }
     }
+
     load()
-  }, [])
+
+    return () => {
+      isMounted = false
+    }
+  }, [basePath])
 
   const allTags = [...new Set(projects.flatMap((p) => p.tags))]
 
@@ -167,7 +189,14 @@ export default function ProjectsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {filteredProjects.map((project) => (
+        {isLoading ? (
+          <Card className="lg:col-span-3 bg-neutral-900 border-neutral-700">
+            <CardContent className="p-8">
+              <p className="text-center text-neutral-400">Loading projects...</p>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredProjects.map((project) => (
           <Card
             key={project.id}
             className="bg-neutral-900 border-neutral-700 hover:border-orange-500/50 transition-colors cursor-pointer overflow-hidden"
@@ -249,7 +278,8 @@ export default function ProjectsPage() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          ))
+        )}
       </div>
 
       {selectedProject && createPortal(

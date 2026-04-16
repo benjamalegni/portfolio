@@ -11,21 +11,33 @@ export const resume = {
   ],
   certifications: [
     {
-      name: "C1 Advanced",
+      name: "English C1 Advanced",
       organization: "Cambridge Assessment English",
       date: "2022",
-      details: "Proficient in spoken English · GPA: 194",
+      details: "Proficient in spoken English",
     },
     {
-      name: "B2 First",
+      name: "English B2 First",
       organization: "Cambridge Assessment English",
       date: "2022",
-      details: "Remarkable in Use of English and Listening · GPA: 196",
+      details: "Remarkable in Use of English and Listening",
+    },
+    {
+      name: "Finnish A1",
+      organization: "Helsinki University",
+      date: "2025",
+      details: "Completed the A1 level of Finnish language proficiency, demonstrating basic communication skills and understanding of the language.",
+    },
+    {
+      name: "Italian Elemental",
+      organization: "Universidad Nacional del Centro de la Provincia de Buenos Aires (UNICEN)",
+      date: "2026",
+      details: "Ongoing course",
     },
   ],
   workExperience: [
      {
-       title: "Security Analyst",
+       title: "Security Delivery IAM",
        company: "Accenture",
        location: "Buenos Aires, Argentina",
        startDate: "2024-03",
@@ -100,6 +112,6 @@ export const resume = {
     location: "Tandil, Buenos Aires, Argentina",
     email: "lukabenjaminmalegni@gmail.com",
     phone: "+54 2267 469069",
-    linkedin: "LinkedIn",
+    linkedin: "https://linkedin.com/in/lukamalegni",
   },
 } as const 

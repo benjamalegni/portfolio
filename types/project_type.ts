@@ -11,7 +11,8 @@ export type Project = {
   lastUpdate: string
   demo: string | null
   github: string | null
-  image: string | null
+  image: string
   features: string[]
   isFork?: boolean
+  pinned?: boolean
 } 
