@@ -83,7 +83,7 @@ export default function ContactPage() {
             </div>
             <div className="flex items-center gap-2 text-neutral-400">
               <Globe className="w-4 h-4" />
-              <span>Helsinki, Finland</span>
+              <span>Pinamar, Argentina</span>
             </div>
           </CardContent>
         </Card>

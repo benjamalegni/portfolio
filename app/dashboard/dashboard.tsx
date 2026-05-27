@@ -27,13 +27,14 @@ export default function DashboardPage() {
   const developmentActivity = summary?.developmentActivity || []
   const eventsError = summary?.eventsError
   const maxWeeklyCommits = weeklyActivity.length > 0 ? Math.max(...weeklyActivity.map((d) => d.commits), 1) : 1
-  const yAxisLabels = [
+  const weeklyCommitTotal = weeklyActivity.reduce((sum, d) => sum + d.commits, 0)
+  const yAxisLabels = Array.from(new Set([
     maxWeeklyCommits,
-    Math.max(1, Math.round(maxWeeklyCommits * 0.75)),
-    Math.max(1, Math.round(maxWeeklyCommits * 0.5)),
-    Math.max(1, Math.round(maxWeeklyCommits * 0.25)),
+    Math.ceil(maxWeeklyCommits * 0.75),
+    Math.ceil(maxWeeklyCommits * 0.5),
+    Math.ceil(maxWeeklyCommits * 0.25),
     0,
-  ]
+  ]))
 
   const currentStreak = summary?.streak ? summary.streak.current : 0;
 
@@ -87,7 +88,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-neutral-400 tracking-wider">COMMITS (7 days)</p>
-                <p className="text-2xl font-bold text-white font-mono">{weeklyActivity.reduce((sum, d) => sum + d.commits, 0)}</p>
+                <p className="text-2xl font-bold text-white font-mono">{weeklyCommitTotal}</p>
               </div>
               <Code className="w-8 h-8 text-white" />
             </div>
@@ -167,47 +168,47 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-48 relative">
-              <div className="absolute left-0 top-0 h-full w-9 flex flex-col justify-between text-xs text-neutral-500 font-mono text-right pr-2">
-                {weeklyActivity.length > 0 && yAxisLabels.map((label, index) => (
-                  <span key={`${label}-${index}`}>{label}</span>
-                ))}
-              </div>
+            {!summary ? (
+              loadingElement
+            ) : (
+              <div className="h-56 grid grid-cols-[2.5rem_1fr] gap-3">
+                <div className="flex flex-col justify-between pb-6 text-xs text-neutral-500 font-mono text-right">
+                  {yAxisLabels.map((label, index) => (
+                    <span key={`${label}-${index}`}>{label}</span>
+                  ))}
+                </div>
 
-              {/* Chart Grid */}
-              <div className="absolute inset-y-0 left-10 right-0 grid grid-cols-7 grid-rows-6 opacity-20">
-                {Array.from({ length: 42 }).map((_, i) => (
-                  <div key={i} className="border border-neutral-700"></div>
-                ))}
-              </div>
+                <div className="relative h-full">
+                  <div className="absolute inset-x-0 top-0 bottom-6 flex flex-col justify-between opacity-30">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="border-t border-neutral-700" />
+                    ))}
+                  </div>
 
-              {/* Bar Chart */}
-              <div className="absolute bottom-0 left-10 right-0 h-full flex items-end justify-around px-4">
-                {weeklyActivity.length === 0 ? (
-                  loadingElement
-                ) : (
-                  weeklyActivity.map((day, index) => {
-                    const heightPercentage = day.commits === 0 ? 2 : Math.min(95, (day.commits / maxWeeklyCommits) * 95)
-                    
-                    return (
-                      <div key={index} className="flex flex-col items-center gap-2 relative group">
-                        {/* Tooltip with commit count */}
-                        {day.commits > 0 && (
-                          <div className="absolute -top-8 bg-neutral-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                            {day.commits} commits
+                  <div className="relative h-full grid grid-cols-7 gap-2 sm:gap-4">
+                    {weeklyActivity.map((day) => {
+                      const heightPercentage = day.commits === 0 ? 0 : Math.max(8, Math.min(100, (day.commits / maxWeeklyCommits) * 100))
+
+                      return (
+                        <div key={day.date || day.day} className="group flex h-full min-w-0 flex-col items-center justify-end gap-2">
+                          <div className="relative flex w-full flex-1 items-end justify-center">
+                            <div className="absolute -top-7 z-10 rounded bg-neutral-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap">
+                              {day.date}: {day.commits} commits
+                            </div>
+                            <div
+                              className="w-full max-w-9 rounded-t bg-orange-500 transition-all duration-300 hover:bg-orange-400"
+                              style={{ height: `${heightPercentage}%` }}
+                              aria-label={`${day.day}: ${day.commits} commits`}
+                            />
                           </div>
-                        )}
-                        <div
-                          className="bg-orange-500 w-8 rounded-t transition-all duration-300 hover:bg-orange-400 cursor-pointer"
-                          style={{ height: `${heightPercentage}%`, minHeight: "4px" }}
-                        ></div>
-                        <span className="text-xs text-neutral-400 font-mono">{day.day}</span>
-                      </div>
-                    )
-                  })
-                )}
+                          <span className="h-4 text-xs text-neutral-400 font-mono">{day.day}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 

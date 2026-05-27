@@ -10,6 +10,7 @@ export default function AgentNetworkPage() {
   const [topLanguages, setTopLanguages] = useState<{ name: string; percentage: number }[]>([])
   const [githubTotals, setGithubTotals] = useState<{ totalRepos: number; totalStars: number } | null>(null)
   const [streak, setStreak] = useState<{ current: number; longest: number } | null>(null)
+  const [loadingStats, setLoadingStats] = useState(true)
 
   useEffect(() => {
     ;(async () => {
@@ -18,7 +19,13 @@ export default function AgentNetworkPage() {
         setTopLanguages(s.topLanguages)
         setGithubTotals(s.totals)
         setStreak(s.streak)
-      } catch {}
+      } catch {
+        setTopLanguages([])
+        setGithubTotals(null)
+        setStreak(null)
+      } finally {
+        setLoadingStats(false)
+      }
     })()
   }, [])
 
@@ -38,8 +45,10 @@ export default function AgentNetworkPage() {
           <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">PROGRAMMING LANGUAGES</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {topLanguages.length === 0 ? (
+          {loadingStats ? (
             <p className="text-neutral-500 text-sm">Loading...</p>
+          ) : topLanguages.length === 0 ? (
+            <p className="text-neutral-500 text-sm">No programming language data available.</p>
           ) : (
             <div className="h-[400px]">
               <PieChart data={topLanguages.map((lang) => ({ id: lang.name, value: lang.percentage, label: lang.name }))} />
@@ -67,47 +76,24 @@ export default function AgentNetworkPage() {
         <CardHeader>
           <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">TECHNICAL SKILLS</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h3 className="text-xs font-medium text-neutral-400 tracking-wider mb-2">Languages / Tools</h3>
-            <div className="flex flex-wrap gap-2">
-              {resume.technicalSkills.languagesTools.map((t) => (
-                <span key={t} className="bg-neutral-800 text-orange-500 text-xs px-2 py-1 rounded">
-                  {t}
-                </span>
-              ))}
+        <CardContent className="space-y-5">
+          {resume.technicalSkills.sections.map((section) => (
+            <div key={section.title}>
+              <h3 className="text-xs font-medium text-neutral-400 tracking-wider mb-2">{section.title}</h3>
+              {section.description && (
+                <p className="text-sm text-neutral-300 mb-2">{section.description}</p>
+              )}
+              {section.items.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {section.items.map((item) => (
+                    <span key={item} className="bg-neutral-800 text-orange-500 text-xs px-2 py-1 rounded">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-          <div>
-            <h3 className="text-xs font-medium text-neutral-400 tracking-wider mb-2">Networking</h3>
-            <ul className="list-disc list-inside space-y-1">
-              {resume.technicalSkills.networking.map((n) => (
-                <li key={n} className="text-sm text-neutral-300">
-                  {n}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-xs font-medium text-neutral-400 tracking-wider mb-2">Mathematical Background</h3>
-            <div className="flex flex-wrap gap-2">
-              {resume.technicalSkills.mathematicalBackground.map((m) => (
-                <span key={m} className="bg-neutral-800 text-neutral-300 text-xs px-2 py-1 rounded">
-                  {m}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h3 className="text-xs font-medium text-neutral-400 tracking-wider mb-2">SDLC</h3>
-            <ul className="list-disc list-inside space-y-1">
-              {resume.technicalSkills.sdlc.map((v) => (
-                <li key={v} className="text-sm text-neutral-300">
-                  {v}
-                </li>
-              ))}
-            </ul>
-          </div>
+          ))}
         </CardContent>
       </Card>
 
@@ -142,8 +128,10 @@ export default function AgentNetworkPage() {
                 <span className="text-neutral-400">{githubTotals.totalStars}</span>
               </div>
             </>
-          ) : (
+          ) : loadingStats ? (
             <p className="text-neutral-500 text-sm">Loading statistics...</p>
+          ) : (
+            <p className="text-neutral-500 text-sm">GitHub statistics unavailable.</p>
           )}
         </CardContent>
       </Card>

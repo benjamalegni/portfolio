@@ -5,11 +5,54 @@ export type GithubSummary = {
   username: string
   totals: { totalRepos: number; totalStars: number }
   recentProjects: Array<{ name: string; description: string | null; tags: string[]; stars: number; language: string | null; lastUpdate: string }>
-  weeklyActivity: Array<{ day: string; commits: number }>
+  weeklyActivity: Array<{ day: string; date: string; commits: number }>
   developmentActivity: Array<{ time: string; action: string; repo: string; branch: string | null; url: string }>
   topLanguages: Array<{ name: string; percentage: number }>
   streak: { current: number; longest: number }
   eventsError?: { status: number; message: string }
+}
+
+const PROGRAMMING_LANGUAGES = new Set([
+  "Assembly",
+  "Bash",
+  "C",
+  "C#",
+  "C++",
+  "Clojure",
+  "Dart",
+  "Elixir",
+  "Erlang",
+  "F#",
+  "Go",
+  "Groovy",
+  "Haskell",
+  "Java",
+  "JavaScript",
+  "Julia",
+  "Kotlin",
+  "Lua",
+  "Objective-C",
+  "Pascal",
+  "Perl",
+  "PHP",
+  "PLpgSQL",
+  "PowerShell",
+  "Python",
+  "R",
+  "Ruby",
+  "Rust",
+  "Scala",
+  "Shell",
+  "SQL",
+  "Swift",
+  "TypeScript",
+  "VHDL",
+  "Visual Basic .NET",
+  "Zig",
+])
+
+function isProgrammingLanguage(name: string | null | undefined) {
+  return Boolean(name && PROGRAMMING_LANGUAGES.has(name))
 }
 
 export type YearlyCommitsData = {
@@ -43,7 +86,7 @@ function normalizeWeeklyActivity(
   weeklyActivity: Array<{ day: string; date?: string; commits: number }> | undefined
 ) {
   if (!weeklyActivity || weeklyActivity.length === 0) {
-    return [] as Array<{ day: string; commits: number }>
+    return [] as Array<{ day: string; date: string; commits: number }>
   }
 
   const commitsByDate = new Map<string, number>()
@@ -58,12 +101,14 @@ function normalizeWeeklyActivity(
   if (commitsByDate.size > 0) {
     return last7Days.map(({ ymd, label }) => ({
       day: label,
+      date: ymd,
       commits: commitsByDate.get(ymd) || 0,
     }))
   }
 
   return weeklyActivity.slice(-7).map((entry) => ({
     day: entry.day,
+    date: entry.date || "",
     commits: entry.commits || 0,
   }))
 }
@@ -135,7 +180,7 @@ export async function buildGithubSummary(username: string): Promise<GithubSummar
   }
 
   // Use worker commits data if available, otherwise fall back to events
-  let weeklyActivity: Array<{ day: string; commits: number }>
+  let weeklyActivity: Array<{ day: string; date: string; commits: number }>
   
   if (commitsData && commitsData.weeklyActivity && commitsData.weeklyActivity.length > 0) {
     // Use worker data (more accurate, directly from commits API), but normalize it
@@ -155,7 +200,7 @@ export async function buildGithubSummary(username: string): Promise<GithubSummar
         if (toLocalYmd(evDate) !== ymd) continue
         commitsForDay += ev.commits
       }
-      return { day: label, commits: commitsForDay }
+      return { day: label, date: ymd, commits: commitsForDay }
     })
 
     const totalWeekly = weeklyActivity.reduce((s, d) => s + d.commits, 0)
@@ -163,9 +208,15 @@ export async function buildGithubSummary(username: string): Promise<GithubSummar
   }
 
   let langAgg = await aggregateTopLanguages(username, repos.map((r) => ({ name: r.name })))
+  langAgg = langAgg.filter((language) => isProgrammingLanguage(language.name))
+
   if (!langAgg || langAgg.length === 0) {
     const counts: Record<string, number> = {}
-    for (const r of repos) if (r.language) counts[r.language] = (counts[r.language] || 0) + 1
+    for (const r of repos) {
+      if (isProgrammingLanguage(r.language)) {
+        counts[r.language!] = (counts[r.language!] || 0) + 1
+      }
+    }
     const total = Object.values(counts).reduce((s, n) => s + n, 0) || 1
     langAgg = Object.entries(counts).map(([name, n]) => ({ name, bytes: (n / total) * 100 }))
   }
