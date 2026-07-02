@@ -52,7 +52,7 @@ export default function CyberpunkPortfolio() {
 
 
   return (
-      <div className="retro-crt flex h-screen overflow-hidden">
+      <div className="flex h-screen overflow-hidden">
         
         {/* mobile overlay */}
         {!sidebarCollapsed && (

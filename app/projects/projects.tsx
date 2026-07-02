@@ -24,7 +24,7 @@ export default function ProjectsPage() {
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
 
   //only pin financialfeeling project for now
-  const pinnedProjectNames = new Set(['financialfeeling'])
+  const pinnedProjectNames = new Set(['komanda'])
 
   useEffect(() => {
     let isMounted = true
@@ -121,7 +121,7 @@ export default function ProjectsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-wider">PROJECT PORTFOLIO</h1>
-          <p className="text-sm text-neutral-400">Showcase of development projects and contributions</p>
+          <p className="text-sm text-neutral-400">Showcase of my projects and contributions</p>
         </div>
         <div className="flex gap-2">
           <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => window.open(githubProfileUrl, "_blank")}>
@@ -153,7 +153,7 @@ export default function ProjectsPage() {
                 variant={selectedTag === "" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedTag("")}
-                className={selectedTag === "" ? "bg-orange-500 hover:bg-orange-600" : "border-neutral-600 text-neutral-400 hover:bg-neutral-800"}
+                className={selectedTag === "" ? "bg-orange-500 hover:bg-orange-600" : "border-neutral-600 text-neutral-800 hover:bg-neutral-100"}
               >
                 All
               </Button>
@@ -163,7 +163,7 @@ export default function ProjectsPage() {
                   variant={selectedTag === tag ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedTag(tag)}
-                  className={selectedTag === tag ? "bg-orange-500 hover:bg-orange-600" : "border-neutral-600 text-neutral-400 hover:bg-neutral-800"}
+                  className={selectedTag === tag ? "bg-orange-500 hover:bg-orange-600" : "border-neutral-600 text-neutral-800 hover:bg-neutral-100"}
                 >
                   {tag}
                 </Button>
@@ -173,7 +173,7 @@ export default function ProjectsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowAllTags(!showAllTags)}
-                  className="border-neutral-600 text-neutral-400 hover:bg-neutral-800"
+                  className="border-neutral-600 text-neutral-800 hover:bg-neutral-100"
                 >
                   {showAllTags ? (
                     <>
@@ -204,35 +204,40 @@ export default function ProjectsPage() {
           filteredProjects.map((project) => (
           <Card
             key={project.id}
-            className="bg-neutral-900 border-neutral-700 hover:border-orange-500/50 transition-colors cursor-pointer overflow-hidden"
+            className="bg-neutral-900 border-neutral-700 hover:border-orange-500/50 transition-colors cursor-pointer overflow-hidden relative max-h-[580px]"
             onClick={() => setSelectedProject(project)}
           >
             <div className="aspect-video bg-neutral-800 relative overflow-hidden">
               <img src={project.image} alt={project.name} className="w-full h-full object-cover" />
+              {/*
+              
+              // commented project status for now
               <div className="absolute top-2 right-2">
                 <Badge className={getProjectStatusBadgeClass(project.status)}>{project.status.toUpperCase()}</Badge>
               </div>
+              
+              */}
+
             </div>
 
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-sm font-bold text-white tracking-wider">{project.name}</CardTitle>
-                  <p className="text-xs text-neutral-400">{project.category}</p>
+                  <CardTitle className="text-xxl font-bold text-white tracking-wider underline">{project.name}</CardTitle>
                 </div>
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pb-24">
               <p className="text-sm text-neutral-300 line-clamp-2">{project.description}</p>
 
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-nowrap overflow-hidden">
                 {project.tags.slice(0, 4).map((tag) => (
-                  <Badge key={tag} className="bg-neutral-800 text-orange-500 text-xs">
+                  <Badge key={tag} className="text-orange-500 text-xs shrink-0">
                     {tag}
                   </Badge>
                 ))}
-                {project.tags.length > 4 && <Badge className="bg-neutral-800 text-neutral-400 text-xs">+{project.tags.length - 4}</Badge>}
+                {project.tags.length > 4 && <Badge className="bg-neutral-800 text-neutral-400 text-xs shrink-0">+{project.tags.length - 4}</Badge>}
               </div>
 
               <div className="flex items-center justify-between text-xs text-neutral-400">
@@ -252,7 +257,7 @@ export default function ProjectsPage() {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="absolute bottom-0 left-0 right-0 p-6 flex gap-2 bg-neutral-900">
                 {project.github && (
                   <Button
                     size="sm"
