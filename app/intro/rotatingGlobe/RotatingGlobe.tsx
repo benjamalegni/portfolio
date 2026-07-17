@@ -15,7 +15,7 @@ export default function RotatingGlobe() {
         <hemisphereLight args={[0xffffff, 0x080820, 3]} />
         <GlobeScene />
         <StarfieldBackground />
-        <OrbitControls enableDamping autoRotate={false} />
+        <OrbitControls minDistance={2} enableDamping autoRotate={false} />
       </Canvas>
     </div>
   )

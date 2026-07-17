@@ -48,15 +48,20 @@ const fragmentShader = `
   void main() {
     if (floor(vVisible + 0.1) == 0.0) discard;
     float alpha = 1.0 - texture2D(alphaTexture, vUv).r;
-    vec3 color = texture2D(colorTexture, vUv).rgb;
-    vec3 other = texture2D(otherTexture, vUv).rgb;
-    float thresh = 0.04;
-    if (vDist < thresh) {
-      color = mix(color, other, (thresh - vDist) * 20.0);
+
+    if (alpha < 0.8) {
+      gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    } else {
+      vec3 color = texture2D(colorTexture, vUv).rgb;
+      vec3 other = texture2D(otherTexture, vUv).rgb;
+      float thresh = 0.04;
+      if (vDist < thresh) {
+        color = mix(color, other, (thresh - vDist) * 20.0);
+      }
+      gl_FragColor = vec4(color, alpha);
     }
-    gl_FragColor = vec4(color, alpha);
-  }
-`
+  }`
+
 
 export default function GlobeScene() {
   const { pointer, raycaster, camera } = useThree()
@@ -107,6 +112,26 @@ export default function GlobeScene() {
     <group ref={groupRef}>
       <mesh ref={wireframeRef} geometry={wireframeGeo}>
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+      <mesh>
+        <icosahedronGeometry args={[1, 6]} />
+        <meshBasicMaterial
+          color="#4fc3f7"
+          wireframe
+          transparent
+          opacity={0.12}
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh>
+        <icosahedronGeometry args={[1, 6]} />
+        <meshBasicMaterial
+          color="#1a5a8a"
+          flatShading
+          transparent
+          opacity={0.04}
+          depthWrite={false}
+        />
       </mesh>
       <points geometry={pointsGeo} material={shaderMat} />
     </group>

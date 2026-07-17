@@ -9,7 +9,7 @@ export default function StarfieldBackground() {
 
   const [geo, mat] = useMemo(() => {
     const numStars = 4500
-    const positions = new Float32Array(numStars * 3)
+    const positions = new Float32Array(numStars * 9)
     const colors = new Float32Array(numStars * 3)
 
     for (let i = 0; i < numStars; i++) {
@@ -34,7 +34,7 @@ export default function StarfieldBackground() {
     geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3))
 
     const mat = new THREE.PointsMaterial({
-      size: 0.2,
+      size: 0.15,
       vertexColors: true,
       map: sprite,
       transparent: true,
