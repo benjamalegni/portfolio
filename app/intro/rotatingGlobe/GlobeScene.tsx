@@ -4,6 +4,7 @@ import { useRef, useMemo } from "react"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useTexture } from "@react-three/drei"
 import * as THREE from "three"
+import CountryMarkers from "./CountryMarkers"
 
 const vertexShader = `
   uniform float size;
@@ -127,13 +128,13 @@ export default function GlobeScene() {
         <icosahedronGeometry args={[1, 6]} />
         <meshBasicMaterial
           color="#1a5a8a"
-          flatShading
           transparent
           opacity={0.04}
           depthWrite={false}
         />
       </mesh>
       <points geometry={pointsGeo} material={shaderMat} />
+      <CountryMarkers />
     </group>
   )
 }
