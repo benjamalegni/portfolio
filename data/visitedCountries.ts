@@ -1,0 +1,20 @@
+export const visitedCountries = [
+    "Argentina",
+    "Chile",
+    "Uruguay",
+    "Brazil",
+    "Paraguay",
+    "Mexico",
+    "United States",
+    "Dominican Republic",
+    "Panama", 
+    "Germany",
+    "Sweden",
+    "Finland",
+    "England",
+    "Latvia",
+    "Lithuania",
+    "Estonia",
+    "Poland",
+    "Italy"
+]

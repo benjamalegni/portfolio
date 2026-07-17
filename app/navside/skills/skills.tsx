@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { resume } from "@/data/resume"
 import { buildGithubSummary } from "@/lib/github-summary"
-import PieChart from "../../components/ui/piechart"
+import PieChart from "../../../components/ui/piechart"
 
 export default function AgentNetworkPage() {
   const [topLanguages, setTopLanguages] = useState<{ name: string; percentage: number }[]>([])
