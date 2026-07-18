@@ -6,7 +6,9 @@ import "./globals.css"
 const geistMono = GeistMono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Luka Malegni Portfolio",
+  title: "Luka Malegni - Portfolio",
+  description: 'This is Luka Malegni's portfolio website, showcasing his work and projects in web development and design.',
+  metadataBase: new URL('https://malegni.com'),
 }
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
