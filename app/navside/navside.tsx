@@ -1,6 +1,6 @@
 import { ChevronRight, Monitor, Shield, Target, Users, Contact } from "lucide-react"
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { SectionId } from "../page";
+import { SectionId } from "../dashboard/page";
 import { fetchYearlyCommits } from "@/lib/github-summary";
 import { EyeBallzSidebarVideo } from "./eye-ballz-sidebar-video";
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Volume2, VolumeX } from "lucide-react"
-import { SectionId } from "./page"
+import { SectionId } from "./dashboard/page"
 
 type TopToolBarProps = {
   activeSection: SectionId

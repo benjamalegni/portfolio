@@ -55,7 +55,7 @@ const vertexShader = `
     float elv = texture2D(elevTexture, vUv).r;
     vec3 vNormal = normalMatrix * normal;
     vVisible = step(0.0, dot( -normalize(mvPosition.xyz), normalize(vNormal)));
-    mvPosition.z += 0.35 * elv;
+    mvPosition.z += 0.95 * elv;
 
     float dist = distance(mouseUV, vUv);
     float zDisp = 0.0;

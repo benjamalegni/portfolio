@@ -1,0 +1,29 @@
+.item {
+  overflow: hidden;
+}
+
+.text {
+  animation: reveal 1.0s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+}
+
+@keyframes reveal {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+    filter: blur(8px);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text {
+    animation: none;
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}

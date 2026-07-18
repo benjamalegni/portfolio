@@ -1,7 +1,8 @@
 "use client"
 
-import { useMemo, useRef } from "react"
+import { useMemo, useRef, type Dispatch, type SetStateAction } from "react"
 import { useFrame } from "@react-three/fiber"
+import { Html } from "@react-three/drei"
 import * as THREE from "three"
 import { countryCoordinates, type CountryCoordinate } from "@/data/countryCoordinates"
 import { visitedCountries } from "@/data/visitedCountries"
@@ -24,7 +25,13 @@ function latLngToVector3({ lat, lng }: CountryCoordinate) {
   )
 }
 
-export default function CountryMarkers() {
+export default function CountryMarkers({
+  selected,
+  setSelected,
+}: {
+  selected: string | null
+  setSelected: Dispatch<SetStateAction<string | null>>
+}) {
   const markerRefs = useRef<(THREE.Group | null)[]>([])
 
   const markers = useMemo(
@@ -69,6 +76,15 @@ export default function CountryMarkers() {
           }}
           position={position}
         >
+          <mesh
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelected((prev) => (prev === country ? null : country))
+            }}
+          >
+            <sphereGeometry args={[0.06, 8, 8]} />
+            <meshBasicMaterial visible={false} />
+          </mesh>
           <mesh>
             <sphereGeometry args={[0.026, 16, 16]} />
             <meshStandardMaterial
@@ -78,6 +94,24 @@ export default function CountryMarkers() {
               toneMapped={false}
             />
           </mesh>
+          {selected === country && (
+            <Html center distanceFactor={4}>
+              <div
+                style={{
+                  background: "rgba(15, 23, 42, 0.6)",
+                  color: "#e0f2fe",
+                  padding: "4px 10px",
+                  borderRadius: "2px",
+                  fontSize: "13px",
+                  fontFamily: "ui-sans-serif, system-ui, sans-serif",
+                  whiteSpace: "nowrap",
+                  pointerEvents: "none",
+                }}
+              >
+                {country}
+              </div>
+            </Html>
+          )}
         </group>
       ))}
     </>

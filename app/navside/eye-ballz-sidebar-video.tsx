@@ -94,9 +94,6 @@ export function EyeBallzSidebarVideo({ src }: Props) {
         }}
         className="block h-48 w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
       />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-orange-300/90">
-        track gaze
-      </div>
     </div>
   )
 }

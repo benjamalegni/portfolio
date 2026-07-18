@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useMemo } from "react"
+import { useRef, useMemo, type Dispatch, type SetStateAction } from "react"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useTexture } from "@react-three/drei"
 import * as THREE from "three"
@@ -27,7 +27,7 @@ const vertexShader = `
     float zDisp = 0.0;
     float thresh = 0.01;
     if (dist < thresh) {
-      zDisp = (thresh - dist) * 1.0;
+      zDisp = (thresh - dist) * 10.0;
     }
     vDist = dist;
     mvPosition.z += zDisp;
@@ -64,7 +64,15 @@ const fragmentShader = `
   }`
 
 
-export default function GlobeScene() {
+export default function GlobeScene({
+  pointsGeometry,
+  selected,
+  setSelected,
+}: {
+  pointsGeometry: THREE.IcosahedronGeometry
+  selected: string | null
+  setSelected: Dispatch<SetStateAction<string | null>>
+}) {
   const { pointer, raycaster, camera } = useThree()
   const groupRef = useRef<THREE.Group>(null)
   const wireframeRef = useRef<THREE.Mesh>(null)
@@ -78,7 +86,7 @@ export default function GlobeScene() {
   ])
 
   const wireframeGeo = useMemo(() => new THREE.IcosahedronGeometry(1, 16), [])
-  const pointsGeo = useMemo(() => new THREE.IcosahedronGeometry(1, 120), [])
+  const pointsGeo = pointsGeometry
 
   const uniforms = useMemo(() => ({
     size: { value: 2.5 },
@@ -111,7 +119,11 @@ export default function GlobeScene() {
 
   return (
     <group ref={groupRef}>
-      <mesh ref={wireframeRef} geometry={wireframeGeo}>
+      <mesh
+        ref={wireframeRef}
+        geometry={wireframeGeo}
+        onClick={() => setSelected(null)}
+      >
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
       <mesh>
@@ -134,7 +146,7 @@ export default function GlobeScene() {
         />
       </mesh>
       <points geometry={pointsGeo} material={shaderMat} />
-      <CountryMarkers />
+      <CountryMarkers selected={selected} setSelected={setSelected} />
     </group>
   )
 }
