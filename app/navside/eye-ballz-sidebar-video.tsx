@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useRef } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 
 const FPS = 60
 const X_STEPS = 25
@@ -18,6 +18,7 @@ export function EyeBallzSidebarVideo({ src }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const rafRef = useRef<number | null>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   const centerTime = useMemo(() => {
     const centerX = Math.floor(X_STEPS / 2)
@@ -88,12 +89,18 @@ export function EyeBallzSidebarVideo({ src }: Props) {
         muted
         playsInline
         preload="auto"
+        width={512}
+        height={512}
         onLoadedMetadata={(event) => {
           event.currentTarget.pause()
           event.currentTarget.currentTime = centerTime
+          setIsLoaded(true)
         }}
-        className="block h-48 w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+        className="block h-48 w-full object-cover transition-transform duration-200 group-hover:scale-[1.06]"
       />
+      {!isLoaded && (
+        <div className="absolute inset-0 animate-pulse rounded-md bg-neutral-950/80" />
+      )}
     </div>
   )
 }

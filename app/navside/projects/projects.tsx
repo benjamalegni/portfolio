@@ -204,20 +204,11 @@ export default function ProjectsPage() {
           filteredProjects.map((project) => (
           <Card
             key={project.id}
-            className="bg-neutral-900 border-neutral-700 hover:border-orange-500/50 transition-colors cursor-pointer overflow-hidden relative max-h-[580px]"
+            className="bg-neutral-900 border-neutral-700 hover:animate-border-pulse transition-all duration-300 cursor-pointer overflow-hidden relative max-h-[580px]"
             onClick={() => setSelectedProject(project)}
           >
             <div className="aspect-video bg-neutral-800 relative overflow-hidden">
               <img src={project.image} alt={project.name} className="w-full h-full object-cover" />
-              {/*
-              
-              // commented project status for now
-              <div className="absolute top-2 right-2">
-                <Badge className={getProjectStatusBadgeClass(project.status)}>{project.status.toUpperCase()}</Badge>
-              </div>
-              
-              */}
-
             </div>
 
             <CardHeader className="pb-3">

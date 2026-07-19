@@ -69,29 +69,32 @@ const config: Config = {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
-  		keyframes: {
-  			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
-  			},
-  			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
-  			}
-  		},
-  		animation: {
-  			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
-  	}
+		keyframes: {
+			'accordion-down': {
+				from: { height: '0' },
+				to: { height: 'var(--radix-accordion-content-height)' }
+			},
+			'accordion-up': {
+				from: { height: 'var(--radix-accordion-content-height)' },
+				to: { height: '0' }
+			},
+			'border-pulse': {
+				'0%, 100%': {
+					boxShadow: '0 0 5px rgb(249 115 22 / 0.2), 0 0 10px rgb(249 115 22 / 0.1)',
+					borderColor: 'rgb(249 115 22 / 0.5)',
+				},
+				'50%': {
+					boxShadow: '0 0 10px rgb(249 115 22 / 0.4), 0 0 20px rgb(249 115 22 / 0.2)',
+					borderColor: 'rgb(249 115 22 / 0.8)',
+				},
+			},
+		},
+		animation: {
+			'accordion-down': 'accordion-down 0.2s ease-out',
+			'accordion-up': 'accordion-up 0.2s ease-out',
+			'border-pulse': 'border-pulse 1.5s ease-in-out infinite',
+		},
+	}
   },
   plugins: [require("tailwindcss-animate")],
 };

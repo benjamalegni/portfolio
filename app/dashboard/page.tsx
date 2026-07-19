@@ -9,6 +9,7 @@ import ContactPage from "../navside/contact/contact"
 import { fetchUserRepos, fetchUserEvents } from "@/lib/github"
 import { NavSide } from "../navside/navside"
 import { TopToolBar } from "../toptoolbar"
+import { DashboardBackground } from "@/components/dashboard-background"
 import "../globals.css"
 
 export type SectionId = "overview" | "projects" | "skills" | "experience" | "contact";
@@ -49,7 +50,8 @@ export default function CyberpunkPortfolio() {
 
   return (
       <div className="flex h-screen overflow-hidden">
-
+        <DashboardBackground/>
+        
         {/* mobile overlay */}
         {!sidebarCollapsed && (
           <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarCollapsed(true)} />
@@ -59,7 +61,7 @@ export default function CyberpunkPortfolio() {
         <div
           className={`${sidebarCollapsed ? "w-22" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 flex md:relative z-50 md:z-auto h-full`}
         >
-          <div className="flex h-full min-h-0 flex-col p-4">
+          <aside className="m-4">
             <NavSide
               activeSection={activeSection}
               setActiveSection={setActiveSection}
@@ -68,9 +70,7 @@ export default function CyberpunkPortfolio() {
               commitsThisYear={commitsThisYear}
               setSideBarCollapsed={setSidebarCollapsed}
               />
-
-
-          </div>
+          </aside>
         </div>
 
 

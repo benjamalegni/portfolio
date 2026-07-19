@@ -61,7 +61,6 @@ export function NavSide({activeSection, setActiveSection, sidebarCollapsed, acti
     }, [])
 
     const items:Item[] = [
-
                 { id: "projects", icon: Target, label: "PROJECTS" },
                 { id: "skills", icon: Shield, label: "SKILLS & STATS" },
                 { id: "overview", icon: Monitor, label: "DASHBOARD" },
@@ -77,7 +76,7 @@ export function NavSide({activeSection, setActiveSection, sidebarCollapsed, acti
     const videoSrc = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/assets/videos/eye-ballz.mp4`
 
     return(
-      <div className="flex h-full min-h-0 flex-col">
+      <div className="flex h-full flex-col">
         <div className="flex flex-1 min-h-0 flex-col">
           {/* top nav */}
           <div className="mb-8 space-y-5">
@@ -137,11 +136,7 @@ export function NavSide({activeSection, setActiveSection, sidebarCollapsed, acti
         </div>
 
         {!sidebarCollapsed && !isLowResolution && (
-          <div
-            className="mt-auto hidden w-full pt-6 md:flex"
-          >
-            <EyeBallzSidebarVideo src={videoSrc} />
-          </div>
+          <EyeBallzSidebarVideo src={videoSrc} />
         )}
       </div>
     )
