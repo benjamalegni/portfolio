@@ -35,6 +35,33 @@ export const resume = {
       details: "Ongoing course",
     },
   ],
+  languages: [
+    {
+      name: "Spanish",
+      level: "Native",
+      description: "Native proficiency",
+    },
+    {
+      name: "English",
+      level: "C1 Advanced",
+      description: "Professional working proficiency",
+    },
+    {
+      name: "Finnish",
+      level: "B1",
+      description: "Basic communication skills",
+    },
+    {
+      name: "Italian",
+      level: "Elemental",
+      description: "Basic communication skills",
+    },
+    {
+      name: "French",
+      level: "Elemental",
+      description: "Specialized on communication under academic settings",
+    },
+  ],
   workExperience: [
      {
        title: "Security Delivery IAM",
@@ -101,8 +128,6 @@ export const resume = {
           "OAuth/PKCE",
           "JWT/JOSE",
           "bcrypt",
-          "Webhooks",
-          "Strapi CMS integrations",
         ],
       },
       {
@@ -113,10 +138,8 @@ export const resume = {
           "Supabase",
           "Neon",
           "Drizzle ORM",
-          "Sequelize",
           "SQL migrations",
           "Schema design",
-          "Indexes",
           "Relational data modeling",
         ],
       },
@@ -125,10 +148,8 @@ export const resume = {
         description: "",
         items: [
           "Playwright/Patchright",
-          "Cheerio",
           "Browser automation",
           "Persistent sessions",
-          "ATS autofill",
           "Captcha/block detection",
           "Form diagnostics",
         ],
@@ -137,9 +158,12 @@ export const resume = {
         title: "AI/NLP",
         description: "",
         items: [
-          "Groq/OpenAI-compatible APIs",
+          "ML",
+          "XGBoost",
+          "LightGBM",
+          "scikit-learn",
           "Prompt engineering",
-          "Transformers.js embeddings",
+          "Web client AI inference",
           "FinBERT/ffback sentiment workflows",
           "RSS/news analysis",
         ],
@@ -168,11 +192,6 @@ export const resume = {
         items: ["Sentry", "OpenTelemetry", "Grafana Cloud", "Mixpanel"],
       },
       {
-        title: "Systems/IoT",
-        description: "",
-        items: ["Python scripting", "Linux", "Raspberry Pi", "Bash scripts"],
-      },
-      {
         title: "Networking/Security Foundation",
         description: "",
         items: [
@@ -191,21 +210,7 @@ export const resume = {
           "wfuzz",
         ],
       },
-      {
-        title: "Software Development Life Cycle (SDLC)",
-        description: "Requirement analysis, system specification, design, implementation, architectural patterns, and documentation.",
-        items: [],
-      },
-      {
-        title: "Algorithm Analysis",
-        description: "C++ implementations of algorithms and data structures; DP, D&C, and optimized problem-solving techniques.",
-        items: [],
-      },
-      {
-        title: "Mathematical Background",
-        description: "",
-        items: ["Calculus", "Algebra", "Linear Algebra", "Discrete Mathematics", "Physics"],
-      },
+
     ],
   },
   interests: [

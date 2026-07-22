@@ -6,6 +6,14 @@ import { resume } from "@/data/resume"
 import { buildGithubSummary } from "@/lib/github-summary"
 import PieChart from "../../../components/ui/piechart"
 
+const langToFlag: Record<string, string> = {
+  Spanish: "ar",
+  English: "gb",
+  Finnish: "fi",
+  Italian: "it",
+  French: "fr",
+}
+
 export default function AgentNetworkPage() {
   const [topLanguages, setTopLanguages] = useState<{ name: string; percentage: number }[]>([])
   const [githubTotals, setGithubTotals] = useState<{ totalRepos: number; totalStars: number } | null>(null)
@@ -42,7 +50,7 @@ export default function AgentNetworkPage() {
       {/* Programming Languages (Top Languages from GitHub) */}
       <Card className="bg-neutral-900 border-neutral-700">
         <CardHeader>
-          <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">PROGRAMMING LANGUAGES</CardTitle>
+          <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">PROGRAMMING LANGUAGES FROM PUBLIC GITHUB REPOSITORIES</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {loadingStats ? (
@@ -57,6 +65,57 @@ export default function AgentNetworkPage() {
         </CardContent>
       </Card>
 
+      <div className="flex flex-row gap-2">
+      {/* Resume: Technical Skills */}
+      <Card className="bg-neutral-900 border-neutral-700">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">TECHNICAL SKILLS</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {resume.technicalSkills.sections.map((section) => (
+            <div key={section.title}>
+              <h3 className="text-xs underline font-bold text-neutral-300 tracking-wider mb-2">{section.title}</h3>
+              {section.items.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {section.items.map((item) => (
+                    <span key={item} className="text-orange-500 text-sm px-2 py-1 rounded">
+                      {item} |
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Resume languages */}
+      <Card className="bg-neutral-900 border-neutral-700">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">LANGUAGES</CardTitle>
+        </CardHeader>
+        <CardContent className="">
+          {resume.languages.map((section) => (
+            <div
+              key={section.name}
+              className="relative border-2 border-neutral-800 tracking-wider m-2 p-6 border-radius-2 overflow-hidden"
+              style={{
+                backgroundImage: `url(https://flagcdn.com/w320/${langToFlag[section.name]}.png)`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            >
+              <div className="absolute inset-0 bg-neutral-900/95" />
+              <h3 className="relative text-xl font-medium text-neutral-200 tracking-wider mb-2">{section.name}</h3>
+              <p className="relative text-sm text-neutral-300 mb-2">{section.level}</p>
+              <p className="relative text-xs text-neutral-400 mb-2">{section.description}</p>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+
+      </div>
       {/* Resume: Soft Skills */}
       <Card className="bg-neutral-900 border-neutral-700">
         <CardHeader>
@@ -71,31 +130,6 @@ export default function AgentNetworkPage() {
         </CardContent>
       </Card>
 
-      {/* Resume: Technical Skills */}
-      <Card className="bg-neutral-900 border-neutral-700">
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">TECHNICAL SKILLS</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          {resume.technicalSkills.sections.map((section) => (
-            <div key={section.title}>
-              <h3 className="text-xs font-medium text-neutral-400 tracking-wider mb-2">{section.title}</h3>
-              {section.description && (
-                <p className="text-sm text-neutral-300 mb-2">{section.description}</p>
-              )}
-              {section.items.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {section.items.map((item) => (
-                    <span key={item} className="bg-neutral-800 text-orange-500 text-xs px-2 py-1 rounded">
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </CardContent>
-      </Card>
 
       {/* Interests */}
       <Card className="bg-neutral-900 border-neutral-700">

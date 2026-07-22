@@ -81,7 +81,7 @@ export function EyeBallzSidebarVideo({ src }: Props) {
       ref={containerRef}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
-      className="group relative w-full overflow-hidden rounded-md border border-orange-500/30 bg-neutral-950/80"
+      className="group relative w-full overflow-hidden rounded-lg border border-orange-500/30 bg-neutral-950/80"
     >
       <video
         ref={videoRef}

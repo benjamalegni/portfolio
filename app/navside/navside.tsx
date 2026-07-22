@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { SectionId } from "../dashboard/page";
 import { fetchYearlyCommits } from "@/lib/github-summary";
 import { EyeBallzSidebarVideo } from "./eye-ballz-sidebar-video";
+import { DialogComment } from "./dialog-comment";
 
 type Props = {
   activeSection: SectionId,
@@ -136,7 +137,10 @@ export function NavSide({activeSection, setActiveSection, sidebarCollapsed, acti
         </div>
 
         {!sidebarCollapsed && !isLowResolution && (
+        <div>
+          <DialogComment/>
           <EyeBallzSidebarVideo src={videoSrc} />
+        </div>
         )}
       </div>
     )
