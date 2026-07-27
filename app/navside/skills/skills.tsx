@@ -65,9 +65,9 @@ export default function AgentNetworkPage() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-col md:flex-row gap-4">
       {/* Resume: Technical Skills */}
-      <Card className="bg-neutral-900 border-neutral-700">
+      <Card className="bg-neutral-900 border-neutral-700 flex-1">
         <CardHeader>
           <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">TECHNICAL SKILLS</CardTitle>
         </CardHeader>
@@ -90,7 +90,7 @@ export default function AgentNetworkPage() {
       </Card>
 
       {/* Resume languages */}
-      <Card className="bg-neutral-900 border-neutral-700">
+      <Card className="bg-neutral-900 border-neutral-700 flex-1">
         <CardHeader>
           <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">LANGUAGES</CardTitle>
         </CardHeader>

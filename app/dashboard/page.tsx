@@ -50,7 +50,9 @@ export default function CyberpunkPortfolio() {
 
   return (
       <div className="flex h-screen overflow-hidden">
-        <DashboardBackground/>
+        <div className="hidden md:block">
+          <DashboardBackground/>
+        </div>
         
         {/* mobile overlay */}
         {!sidebarCollapsed && (
