@@ -25,6 +25,7 @@ export default function ProjectsPage() {
 
   //only pin financialfeeling project for now
   const pinnedProjectNames = new Set(['komanda'])
+  const excludedRepoNames = new Set(['benjamalegni'])
 
   useEffect(() => {
     let isMounted = true
@@ -50,6 +51,7 @@ export default function ProjectsPage() {
         const repos = await fetchUserRepos("benjamalegni")
         normalizedGithub = repos
           .filter((item) => item.status !== "archived")
+          .filter((item) => !excludedRepoNames.has(item.name.toLowerCase()))
           .map((repo) => ({
             ...repo,
             image: `${basePath}/${repo.name}-preview.png`,
