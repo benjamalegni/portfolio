@@ -13,7 +13,7 @@ export const sharedRepos: Project[] = [
 		forks: 0,
 		language: "TypeScript",
 		lastUpdate: "2026-04-15",
-		demo: "https://interviewquiz.404.mn/",
+    demo: "https://interview-quiz-8r0.pages.dev/",
 		github:"https://github.com/Juanma7882/hackaton-midu",
 		image: "/interview-quiz-preview.png",
 		features: [
